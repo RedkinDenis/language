@@ -1,0 +1,2 @@
+all:
+	g++ language.cpp input_output.cpp differentiator.cpp recursive_descent.cpp -o lang
