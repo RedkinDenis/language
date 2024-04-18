@@ -68,14 +68,18 @@ void compiler (Data* prog)
             goto_expression(&prog->lines[line].str);
 
             Node* expression = get_g(prog->lines[line].str);
-            var = calculator(expression);
-            add_var(&vars, name, var);
 
-            printf("\n%s", equation_assm(expression, &stk));
+            int v = 0;
+            var = calculator(expression, &v);
+            if (v == 0)
+                add_var(&vars, name, var);
+
+            printf("\n%s", equation_assm(expression, &stk, &vars));
             stack_dtor(&stk);
         }
     }
-    dump_vars(&vars);
+    // dump_vars(&vars);
+    delete_vars(&vars);
 }
 
 char* get_name (char* str)
@@ -117,7 +121,6 @@ void delete_vars (vars* vars)
     for (int i = 0; i < vars->qant; i++)
         free(vars->arr[i].name);
     free(vars->arr);
-    free(vars);
 }
 
 void dump_vars (vars* vars)
@@ -175,8 +178,17 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars)
 
     else if (tree->type == VAR)
     {
-        SPRINTF(buf, buf_size, "%s", tree->data.var);
-        return buf;
+        // printf("HERE!!!!\n");
+        for (int i = 0; i , vars->qant; i++)
+        {
+            if (strncmp(vars->arr[i].name, tree->data.var, strlen(vars->arr[i].name)) == 0)
+            {
+                tree->type = NUM;
+                tree->data.value = vars->arr[i].value;
+                return equation_assm(tree, mem_stk, vars);
+            }
+        }
+        return (char*)"UNKNOWN VAR";
     }
 
     return (char*)"UNKNOWN";
