@@ -153,7 +153,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars)
 
     if (tree->type == OPERAND)
     {
-        SPRINTF(buf, buf_size, "%s \n%s \n%s \n", op_to_str(tree->data.operand), equation_assm(tree->left, mem_stk, vars), equation_assm(tree->right, mem_stk, vars));
+        SPRINTF(buf, buf_size, "%s \n%s \n%s \n", equation_assm(tree->left, mem_stk, vars), equation_assm(tree->right, mem_stk, vars), op_to_str(tree->data.operand));
         return buf;
     }
     else if (tree->type == FUNCTION)
@@ -167,11 +167,11 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars)
     {
         if ((tree->data.value - (int)tree->data.value) == 0)
         {
-            SPRINTF(buf, buf_size, "%d", (int)tree->data.value);    
+            SPRINTF(buf, buf_size, "PUSH %d", (int)tree->data.value);    
         }
         else 
         {
-            SPRINTF(buf, buf_size, "%lf", tree->data.value);
+            SPRINTF(buf, buf_size, "PUSH %lf", tree->data.value);
         }
         return buf;
     }
