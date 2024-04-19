@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include "..\..\err_codes.h"   
-#include "../headers/DSL.h"
+#include "../headers/DSLdiff.h"
 
 #define DATA_LEN 40
 
@@ -28,7 +28,9 @@ enum operation
     POW = '^',
     SIN = 's',
     COS = 'c',
-    TG = 't'
+    TG = 't',
+    ASS = '=',
+    COM = ';'
 };
 
 union data
@@ -57,7 +59,9 @@ static operation op_add = ADD;
 static operation op_mul = MUL;        
 static operation op_sub = SUB;        
 static operation op_div = DIV;        
-static operation op_pow = POW;        
+static operation op_pow = POW; 
+static operation op_ass = ASS;  
+static operation op_com = COM;     
 static char* op_exp = (char*)"exp";   
 static char* op_ln = (char*)"ln";     
 static char* op_sin = (char*)"sin";   

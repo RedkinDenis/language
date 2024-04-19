@@ -139,6 +139,14 @@ err fill_buffer (FILE* read, char** buf)
     return SUCCESS;
 }
 
+void remove_enters (char* str)
+{
+    size_t len = strlen(str);
+    for (int i = 0; i < len; i++)
+        if (str[i] == '\n' || str[i] == '\r')
+            str[i] = ' ';
+}
+
 err importTree (FILE* read, Node* tree)
 {
     CHECK_PTR(read);

@@ -21,7 +21,7 @@ struct vars
     size_t qant = 0;
 };
 
-static void compiler (Data* prog);
+static void compiler (char* prog);
 
 static vars create_vars ();
 
@@ -39,11 +39,17 @@ static char* equation_assm (Node* tree, Stack* mem_stk, vars* vars);
 
 int main ()
 {
-    Data programm = input_data("prog.txt");
-    dump_data(&programm);
+    // Data programm = input_data("prog.txt");
+    // dump_data(&programm);
     // clear_data(&programm);
 
-    compiler(&programm);
+    FILE* prog = fopen("prog.txt", "rb");
+    char* programm = NULL;
+    fill_buffer(prog, &programm);
+    remove_enters(programm);
+    printf("%s\n", programm);
+
+    compiler(programm);
 }
 
 void goto_expression (char** str)
@@ -53,31 +59,35 @@ void goto_expression (char** str)
     skip_spaces(str);
 }
 
-void compiler (Data* prog)
+void compiler (char* prog)
 {
     vars vars = create_vars();
-    for (int line = 0; line < prog->quant; line++)
-    {
-        if (strstr(prog->lines[line].str, "="))
-        {
-            Stack stk = {};
-            stack_ctor(&stk, 1);
 
-            char* name = get_name(prog->lines[line].str);
-            double var = 0;
-            goto_expression(&prog->lines[line].str);
+    Node* programm = get_g(prog);
+    draw_tree(programm);
+    // for (int line = 0; line < prog->quant; line++)
+    // {
+    //     // if (strstr(prog->lines[line].str, "="))
+    //     {
+    //         // Stack stk = {};
+    //         // stack_ctor(&stk, 1);
 
-            Node* expression = get_g(prog->lines[line].str);
+    //         // char* name = get_name(prog->lines[line].str);
+    //         // double var = 0;
+    //         // goto_expression(&prog->lines[line].str);
 
-            int v = 0;
-            var = calculator(expression, &v);
-            if (v == 0)
-                add_var(&vars, name, var);
+    //         Node* expression = get_g(prog->lines[line].str);
+    //         draw_tree(expression);
 
-            printf("\n%s", equation_assm(expression, &stk, &vars));
-            stack_dtor(&stk);
-        }
-    }
+    //         // int v = 0;
+    //         // var = calculator(expression, &v);
+    //         // if (v == 0)
+    //         //     add_var(&vars, name, var);
+
+    //         // printf("\n%s", equation_assm(expression, &stk, &vars));
+    //         // stack_dtor(&stk);
+    //     }
+    // }
     // dump_vars(&vars);
     delete_vars(&vars);
 }

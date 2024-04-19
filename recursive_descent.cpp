@@ -1,8 +1,10 @@
 #include "headers/recursive_descent.h"
+#include "headers/input_output.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <windows.h>
 
 static Node* get_n (char** s);
 
@@ -16,6 +18,10 @@ static Node* get_f (char** s);
 
 static Node* get_d (char** s);
 
+static Node* get_a (char** s);
+
+static Node* get_c (char** s);
+
 void skip_spaces (char** str)
 {
     while (**str == ' ')
@@ -26,11 +32,46 @@ Node* get_g (const char* str)
 {
     char** s = (char**)&str;
     skip_spaces(s);
-    Node* val = get_e(s);
+    Node* val = get_c(s);
 
     skip_spaces(s);
     REQUIRE(';');
 
+    return val;
+}
+
+Node* get_c (char** s)
+{
+    skip_spaces(s);
+    if (**s == ';')
+        return DEFUALT_NODE;
+        
+    Node* val = get_a(s);
+    skip_spaces(s);
+
+    if (**s == ';')
+    {
+        *s += 1;
+        val = create_node(OPERAND, &op_com, val, get_c(s));
+    }
+    skip_spaces(s);
+    return val;
+}
+
+Node* get_a (char** s)
+{
+    Node* val = get_e(s);
+    skip_spaces(s);
+
+    if (**s == '=')
+    {
+        *s += 1;
+        skip_spaces(s);
+        Node* expr = get_e(s);
+        val = create_node(OPERAND, &op_ass, expr, val);
+    }
+
+    skip_spaces(s);
     return val;
 }
 
@@ -152,6 +193,9 @@ Node* get_p (char** s)
 Node* get_n (char** s)
 {
     skip_spaces(s);
+    if (**s == ';')
+        return DEFUALT_NODE;
+
     char* old_s = *s;
 
     Node* val = (Node*)calloc(1, sizeof(Node));

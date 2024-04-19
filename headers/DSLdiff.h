@@ -3,7 +3,7 @@
 
 #define GET_VARIABLE_NAME(variable) #variable
 
-#define SYNTAX_ERROR printf("SYNTAX ERROR!!!\n");
+#define SYNTAX_ERROR printf("SYNTAX ERROR!!!\nCALLED FROM LINE: %d\nline_now - %s\n", __LINE__, *s);
 
 #define REQUIRE(r)                                      \
     do                                                  \
@@ -13,7 +13,6 @@
         else                                            \
         {                                               \
             SYNTAX_ERROR                                \
-            printf("CALLED FROM LINE: %d\n", __LINE__); \
         }                                               \
     } while (0)             
 

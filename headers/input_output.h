@@ -4,7 +4,7 @@
 #include <stdio.h> 
 #include "..\..\err_codes.h"
 #include "differentiator.h"
-#include "../headers/DSL.h"
+#include "../headers/DSLdiff.h"
 
 struct line 
 {
@@ -39,5 +39,7 @@ err draw_tree (Node* tree);
 err fill_buffer (FILE* read, char** buf);
 
 char* tex_tree (Node* tree);
+
+void remove_enters (char* str);
 
 #endif // INPUT_OTPUT_H

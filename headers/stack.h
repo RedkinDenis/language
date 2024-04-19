@@ -6,8 +6,8 @@
 #include <malloc.h>
 #include <assert.h>
 
-#include "C:\Users\vp717\Desktop\ilab\err_codes.h"
-#include "C:\Users\vp717\Desktop\ilab\processor\redkin_processor\DSL.h"
+#include "../../err_codes.h"
+#include "DSLdiff.h"
 
 typedef char* elem_t;
 
