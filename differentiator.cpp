@@ -1,6 +1,7 @@
 #include "headers/differentiator.h"
 #include "headers/input_output.h"
 #include "headers/recursive_descent.h"
+#include "headers/encoding.h"
 
 #include "..\UDL.h"
 #include <stdlib.h>
@@ -66,7 +67,7 @@ operation long_op_det (char* str, char** s)
     #include "headers/long_op.h"
     #undef LONG_OP_DET
 
-    return ERR;
+    return opUNKNOWN;
 }
 
 double calculator (Node* tree, int* var)
@@ -91,7 +92,7 @@ double calculator (Node* tree, int* var)
             #include "headers/operations.h"
             #undef OPERATION
 
-            case DIV:
+            case opDIV:
             {
                 float x1 = calculator(tree->left, var);
                 float x2 = calculator(tree->right, var);
@@ -103,7 +104,7 @@ double calculator (Node* tree, int* var)
                 break;
             }
 
-            case POW:
+            case opPOW:
                 return pow(calculator(tree->left, var), calculator(tree->right, var));
             
             default:
@@ -116,15 +117,15 @@ double calculator (Node* tree, int* var)
     {
         switch (long_op_det(tree->data.function))
         {
-            case LN:
+            case opLN:
                 return log(calculator(tree->right, var));
-            case EXP:
+            case opEXP:
                 return exp(calculator(tree->right, var));
-            case SIN:
+            case opSIN:
                 return sin(calculator(tree->right, var));
-            case COS:
+            case opCOS:
                 return cos(calculator(tree->right, var));
-            case TG:
+            case opTG:
                 return tan(calculator(tree->right, var));        
         }
     }
@@ -253,11 +254,12 @@ Node* copy_subtree (Node* sub_tree)
     return copy;
 }
 
-Node* create_node (data_t type, void* data, Node* left, Node* right)
+Node* create_node (data_t type, void* data, Node* left, Node* right, byte_codes code)
 {
     Node* newNode = (Node*)calloc(1, sizeof(Node));
 
     newNode->type = type;
+    newNode->code = code;
 
     switch (type)
     {
@@ -307,37 +309,37 @@ Node* diff (const Node* node, const char* part)
         case OPERAND:
             switch (node->data.operand)
             {
-                case ADD:
+                case opADD:
                     return create_node(OPERAND, &op_add, diff(node->left, part), diff(node->right, part));
                 
-                case SUB:
+                case opSUB:
                     return create_node(OPERAND, &op_sub, diff(node->left, part), diff(node->right, part));
                 
-                case MUL:
+                case opMUL:
                     return diff_mul(node, part);
                     
-                case DIV:
+                case opDIV:
                     return diff_div(node, part);
 
-                case POW:
+                case opPOW:
                     return diff_pow(node, part);
             }
         case (FUNCTION):
             switch (long_op_det(node->data.function))
             {
-                case LN:
+                case opLN:
                     return diff_ln(node, part);
     
-                case EXP:
+                case opEXP:
                     return diff_exp(node, part);  
 
-                case SIN:
+                case opSIN:
                     return diff_sin(node, part);  
 
-                case COS:
+                case opCOS:
                     return diff_cos(node, part);  
 
-                case TG:
+                case opTG:
                     return diff_tg(node, part);     
             }
     }
@@ -479,7 +481,7 @@ err tree_kill (Node* head)
         free(head->data.function);
 
     if (head->type == VAR)
-        free(head->data.var);
+        free((char*)head->data.var);
 
     free(head);
     return SUCCESS;

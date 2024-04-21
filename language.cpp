@@ -8,10 +8,13 @@
 #include "headers/recursive_descent.h"
 #include "headers/stack.h"
 
+#define RAM_SIZE 1024
+
 struct var
 {
     char* name = NULL;
     double value = 0;
+    size_t adress = 0;
 };
 
 struct vars 
@@ -19,6 +22,19 @@ struct vars
     var* arr = NULL;
     size_t capacity = 0;
     size_t qant = 0;
+};
+
+struct RAM_cell
+{
+    double value = 0;
+    int busy = 0;
+};
+
+struct RAM
+{
+    RAM_cell* cells = NULL;
+    size_t size = 0;
+    size_t free_cells = 0;
 };
 
 static void compiler (char* prog);
@@ -29,20 +45,22 @@ static void dump_vars (vars* vars);
 
 static void delete_vars (vars* vars);
 
-static void add_var (vars* vars, char* name, double value);
+static size_t add_var (RAM* ram, vars* vars, const char* name);
 
-static char* get_name (char* str);
+static var* check_var (vars* vars, const char* var);
 
 static char* op_to_str (unsigned char op);
 
-static char* equation_assm (Node* tree, Stack* mem_stk, vars* vars);
+static char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram);
+
+static RAM ram_ctor (size_t size);
+
+static size_t search_free_cells (RAM* ram);
+
+static void ram_dtor (RAM* ram);
 
 int main ()
 {
-    // Data programm = input_data("prog.txt");
-    // dump_data(&programm);
-    // clear_data(&programm);
-
     FILE* prog = fopen("prog.txt", "rb");
     char* programm = NULL;
     fill_buffer(prog, &programm);
@@ -52,69 +70,35 @@ int main ()
     compiler(programm);
 }
 
-void goto_expression (char** str)
-{
-    while (*(*str - 1) != '=')
-        *str += 1;
-    skip_spaces(str);
-}
-
 void compiler (char* prog)
 {
     vars vars = create_vars();
+    RAM ram = ram_ctor(RAM_SIZE);
 
     Node* programm = get_g(prog);
     draw_tree(programm);
-    // for (int line = 0; line < prog->quant; line++)
-    // {
-    //     // if (strstr(prog->lines[line].str, "="))
-    //     {
-    //         // Stack stk = {};
-    //         // stack_ctor(&stk, 1);
+    print_tree(programm);
+    printf("\n");
 
-    //         // char* name = get_name(prog->lines[line].str);
-    //         // double var = 0;
-    //         // goto_expression(&prog->lines[line].str);
-
-    //         Node* expression = get_g(prog->lines[line].str);
-    //         draw_tree(expression);
-
-    //         // int v = 0;
-    //         // var = calculator(expression, &v);
-    //         // if (v == 0)
-    //         //     add_var(&vars, name, var);
-
-    //         // printf("\n%s", equation_assm(expression, &stk, &vars));
-    //         // stack_dtor(&stk);
-    //     }
-    // }
-    // dump_vars(&vars);
-    delete_vars(&vars);
-}
-
-char* get_name (char* str)
-{
-    skip_spaces(&str);
-
-    int len = 0;
-    while (isalpha(str[len]))
-        len++;
-
-    char* name = (char*)calloc(len + 1, sizeof(char));
-    strncpy(name, str, len);
-    return name;
+    Stack stk = {};
+    stack_ctor(&stk, 1);
+    
+    char* res = equation_assm(programm, &stk, &vars, &ram);
+    printf ("assm:\n%s\n", res);
+    // stack_dtor(&stk);
+    // delete_vars(&vars);
 }
 
 vars create_vars ()
 {
     vars vars = {};
-    vars.capacity = 1;
+    vars.capacity = 5;
     vars.qant = 0;
-    vars.arr = (var*)calloc(1, sizeof(var));
+    vars.arr = (var*)calloc(vars.capacity, sizeof(var));
     return vars;
 }
 
-void add_var (vars* vars, char* name, double value)
+size_t add_var (RAM* ram, vars* vars, const char* name)
 {
     if (vars->capacity == vars->qant)
     {
@@ -122,8 +106,16 @@ void add_var (vars* vars, char* name, double value)
         vars->arr = (var*)realloc(vars->arr, vars->capacity);
     }
     vars->arr[vars->qant].name = strdup(name);
-    vars->arr[vars->qant].value = value;
+
+    size_t ram_adress = search_free_cells(ram);
+    ram->cells[ram_adress].busy = 1;
+    vars->arr[vars->qant].adress = ram_adress;
+
+    ram->free_cells = ram_adress + 1;
+
     vars->qant++;
+
+    return ram_adress;
 }
 
 void delete_vars (vars* vars)
@@ -136,70 +128,117 @@ void delete_vars (vars* vars)
 void dump_vars (vars* vars)
 {
     for (int i = 0; i < vars->qant; i++)
-        printf("%s - %lf \n", vars->arr[i].name, vars->arr[i].value);
+        printf("\n%s adress: %u \n", vars->arr[i].name, vars->arr[i].adress);
+}
+
+var* check_var (vars* vars, const char* var)
+{
+    // printf ("%s ", var);
+    for (int i = 0; i < vars->qant; i++)
+    {
+        if (strcmp(vars->arr[i].name, var) == 0)
+        {
+            // printf ("HERE ");
+            return &(vars->arr[i]);
+        }
+    }
+    return NULL;
 }
 
 char* op_to_str (unsigned char op)
 {
     switch (op)
     {
-        case ADD:
+        case opADD:
             return (char*)"ADD";
-        case SUB:
+        case opSUB:
             return (char*)"SUB";
-        case MUL:
+        case opMUL:
             return (char*)"MUL";
-        case DIV:
+        case opDIV:
             return (char*)"DIV";
     }
     return NULL;
 }
 
-char* equation_assm (Node* tree, Stack* mem_stk, vars* vars)
+char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
 {
     int buf_size = 10000;
     char* buf = (char*)calloc(buf_size, sizeof(char));
-    stack_push(mem_stk, &buf);
+    stack_push(mem_stk, (void**)&buf);
 
-    if (tree->type == OPERAND)
+    if (tree->code == ASSIGN)
     {
-        SPRINTF(buf, buf_size, "%s \n%s \n%s \n", equation_assm(tree->left, mem_stk, vars), equation_assm(tree->right, mem_stk, vars), op_to_str(tree->data.operand));
+        SPRINTF(buf, buf_size, "%s\n%s\n", equation_assm(tree->left, mem_stk, vars, ram), equation_assm(tree->right, mem_stk, vars, ram));
         return buf;
     }
-    else if (tree->type == FUNCTION)
-    {
-        SPRINTF(buf, buf_size, "%s(%s) ", tree->data.function, equation_assm(tree->right, mem_stk, vars));
 
-        return buf;
-    }
-    
-    else if (tree->type == NUM)
+    else if (tree->type == DEFUALT)
+        return (char*)"";
+
+    else if (tree->code != NEW)
     {
-        if ((tree->data.value - (int)tree->data.value) == 0)
+        if (tree->type == OPERAND)
         {
-            SPRINTF(buf, buf_size, "PUSH %d", (int)tree->data.value);    
+            SPRINTF(buf, buf_size, "%s \n%s \n%s \n", equation_assm(tree->left, mem_stk, vars, ram), equation_assm(tree->right, mem_stk, vars, ram), op_to_str(tree->data.operand));
+            return buf;
         }
-        else 
+        else if (tree->type == NUM)
         {
-            SPRINTF(buf, buf_size, "PUSH %lf", tree->data.value);
-        }
-        return buf;
-    }
-
-    else if (tree->type == VAR)
-    {
-        // printf("HERE!!!!\n");
-        for (int i = 0; i , vars->qant; i++)
-        {
-            if (strncmp(vars->arr[i].name, tree->data.var, strlen(vars->arr[i].name)) == 0)
+            if ((tree->data.value - (int)tree->data.value) == 0)
             {
-                tree->type = NUM;
-                tree->data.value = vars->arr[i].value;
-                return equation_assm(tree, mem_stk, vars);
+                SPRINTF(buf, buf_size, "PUSH %d", (int)tree->data.value);    
             }
+            else 
+            {
+                SPRINTF(buf, buf_size, "PUSH %lf", tree->data.value);
+            }
+            return buf;
         }
-        return (char*)"UNKNOWN VAR";
+
+        else if (tree->type == VAR)
+        {
+            printf ("1 ");
+            printf ("var - %p ", tree->data.var);
+            var* var = check_var(vars, tree->data.var);
+            printf ("2 ");
+            if (var != NULL)
+            {
+                // printf ("HERE ");
+                SPRINTF(buf, buf_size, "POP [%u]\n", var->adress);
+            }
+            else 
+            {
+                size_t adress = add_var(ram, vars, tree->data.var);
+                SPRINTF(buf, buf_size, "PUSH [%u]\n", adress);
+            }
+            return buf;
+        }
+    }
+    else 
+    {
+        SPRINTF(buf, buf_size, "%s\n%s", equation_assm(tree->left, mem_stk, vars, ram), equation_assm(tree->right, mem_stk, vars, ram));
+        return buf;
     }
 
-    return (char*)"UNKNOWN";
+    return (char*)"UNKNOWN COMM";
+}
+
+RAM ram_ctor (size_t size)
+{
+    RAM ram = {};
+    ram.cells = (RAM_cell*)calloc(size, sizeof(RAM_cell));
+    ram.size = size;
+
+    return ram;
+}
+
+size_t search_free_cells (RAM* ram)
+{
+    return ram->free_cells;
+}
+
+void ram_dtor (RAM* ram)
+{
+    free(ram->cells);
 }

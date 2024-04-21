@@ -47,6 +47,10 @@ err print_tree__ (Node* head, int* tab)
 
     printf("%*s", *tab * 4, "");
     print_data(head);
+    if (head->type == VAR)
+    {
+        printf("var - %s %p ", head->data.var, head->data.var);
+    }
 
     if (head->left != NULL)
     {
@@ -369,9 +373,9 @@ void draw_tree_1 (FILE* save, Node* tree, int* node_num)
     char* type = type_to_str(tree);
 
     if (tree->type == NUM || tree->type == VAR)
-        fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = lightgoldenrod1, label = %cTYPE: %s | DATA: %s%c];\n", *node_num, '"', type, buffer, '"');
+        fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = lightgoldenrod1, label = %cTYPE: %s | DATA: %s | CODE: %d%c];\n", *node_num, '"', type, buffer, tree->code, '"');
     else if (tree->type != DEFUALT)
-        fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = cyan, label = %cTYPE: %s | DATA: %s%c];\n", *node_num, '"', type, buffer, '"');
+        fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = cyan, label = %cTYPE: %s | DATA: %s | CODE: %d%c];\n", *node_num, '"', type, buffer, tree->code, '"');
     else 
         *node_num -= 1;
 

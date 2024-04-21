@@ -36,7 +36,7 @@ err stack_ctor(struct Stack* stk, size_t capacity)
         return STACK_ALREDY_CREATED;
 
     void* temp = 0;
-    CALLOC(stk->data, elem_t, capacity);
+    CALLOC(stk->data, void*, capacity);
 
     stk->capacity = capacity;
     stk->size = 0;
@@ -44,7 +44,7 @@ err stack_ctor(struct Stack* stk, size_t capacity)
     return SUCCESS;
 }
 
-err stack_push(struct Stack* stk, const elem_t* x)
+err stack_push(struct Stack* stk, void** x)
 {
     CHECK_PTR(stk);
     CHECK_PTR(x);
@@ -58,7 +58,7 @@ err stack_push(struct Stack* stk, const elem_t* x)
     return SUCCESS;
 }
 
-err stack_pop(struct Stack* stk, elem_t* pop_el)
+err stack_pop(struct Stack* stk, void** pop_el)
 {
     CHECK_PTR(stk);
 
@@ -101,7 +101,7 @@ err capacity_down(struct Stack* stk)
        stk->capacity / 4 < stk->size)
         return SUCCESS;
 
-    REALLOC(stk->data, elem_t, stk->capacity / 2);
+    REALLOC(stk->data, void*, stk->capacity / 2);
 
     stk->capacity /= 2;
 
@@ -121,7 +121,7 @@ err capacity_up(struct Stack* stk)
     else
         expander = stk->capacity;
 
-    REALLOC(stk_data, elem_t, (stk->capacity + expander));
+    REALLOC(stk_data, void*, (stk->capacity + expander));
 
     stk->capacity += expander;
     return SUCCESS;

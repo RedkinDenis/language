@@ -1,5 +1,6 @@
 #include "headers/recursive_descent.h"
 #include "headers/input_output.h"
+#include "headers/encoding.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -52,7 +53,7 @@ Node* get_c (char** s)
     if (**s == ';')
     {
         *s += 1;
-        val = create_node(OPERAND, &op_com, val, get_c(s));
+        val = create_node(OPERAND, &op_com, val, get_c(s), NEW);
     }
     skip_spaces(s);
     return val;
@@ -68,7 +69,7 @@ Node* get_a (char** s)
         *s += 1;
         skip_spaces(s);
         Node* expr = get_e(s);
-        val = create_node(OPERAND, &op_ass, expr, val);
+        val = create_node(OPERAND, &op_ass, expr, val, ASSIGN);
     }
 
     skip_spaces(s);
@@ -87,9 +88,9 @@ Node* get_e (char** s)
         skip_spaces(s);
         Node* val2 = get_t(s);
         if (op == '+')  
-            val = create_node(OPERAND, &op_add, val, val2);
+            val = create_node(OPERAND, &op_add, val, val2, ADD);
         else 
-            val = create_node(OPERAND, &op_sub, val, val2);
+            val = create_node(OPERAND, &op_sub, val, val2, SUB);
     }
     skip_spaces(s);
 
@@ -131,9 +132,9 @@ Node* get_t (char** s)
         *s += 1;
         Node* val2 = get_d(s);
         if (op == '*')  
-            val = create_node(OPERAND, &op_mul, val, val2);
+            val = create_node(OPERAND, &op_mul, val, val2, MUL);
         else 
-            val = create_node(OPERAND, &op_div, val, val2);
+            val = create_node(OPERAND, &op_div, val, val2, DIV);
     }
     skip_spaces(s);
 
@@ -146,7 +147,7 @@ Node* get_f (char** s)
     operation foo = long_op_det(*s, s);
     skip_spaces(s);
 
-    if (foo != ERR)
+    if (foo != opUNKNOWN)
     {
         Node* var = NULL;
 
@@ -204,13 +205,21 @@ Node* get_n (char** s)
     skip_spaces(s);
     if (isalpha(**s))
     {
+        int i = 0;
+        while (isalpha((*s)[i]))
+            i++;
+
         val->type = VAR;
-        val->data.var = (char*)calloc(2, sizeof(char));
-        val->data.var[0] = **s;
-        *s += 1;
+        char* temp = (char*)calloc(i + 1, sizeof(char));
+        strncpy(temp, *s, i);
+        *s += i;
+
+        val->data.var = temp;
+        val->code = RAMPUSH;
     }
     else
     {
+        val->code = PUSH;
         char sign = '+';
         if (**s == '-')
         {
