@@ -85,7 +85,7 @@ void print_data (Node* head)
     else if (head->type == VAR)
         printf("#%s#", head->data.var); 
 
-    else if (head->type ==  DEFUALT)
+    else if (head->type ==  EMPtY)
         printf("#null#");
     
     return;
@@ -258,7 +258,7 @@ void get_data(char* buf, int* ptr, Node* tree, int data_len)
         if (strcmp(data_buffer, "null") == 0)
         {
             //printf("here\n");
-            tree->type = DEFUALT;
+            tree->type = EMPtY;
         }
         else
             tree->type = FUNCTION;
@@ -334,7 +334,7 @@ char* data_to_string (Node* tree)
         data = (char*)calloc(strlen(tree->data.var) + 1, sizeof(char));
         strcpy(data, tree->data.var);
     }
-    else if (tree->type == DEFUALT)
+    else if (tree->type == EMPtY)
         data = (char*)"null";
 
     return data;
@@ -374,7 +374,7 @@ void draw_tree_1 (FILE* save, Node* tree, int* node_num)
 
     if (tree->type == NUM || tree->type == VAR)
         fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = lightgoldenrod1, label = %cTYPE: %s | DATA: %s | CODE: %d%c];\n", *node_num, '"', type, buffer, tree->code, '"');
-    else if (tree->type != DEFUALT)
+    else if (tree->type != EMPtY)
         fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = cyan, label = %cTYPE: %s | DATA: %s | CODE: %d%c];\n", *node_num, '"', type, buffer, tree->code, '"');
     else 
         *node_num -= 1;

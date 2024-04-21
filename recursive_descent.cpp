@@ -45,7 +45,7 @@ Node* get_c (char** s)
 {
     skip_spaces(s);
     if (**s == ';')
-        return DEFUALT_NODE;
+        return EMPtY_NODE;
         
     Node* val = get_a(s);
     skip_spaces(s);
@@ -156,7 +156,7 @@ Node* get_f (char** s)
         {
             #define LONG_OP_DET(enum, string, vr)                               \
             case enum:                                                          \
-                var = create_node(FUNCTION, vr, DEFUALT_NODE, get_e(s));        \
+                var = create_node(FUNCTION, vr, EMPtY_NODE, get_e(s));        \
                 break;
             #include "headers/long_op.h"
             #undef LONG_OP_DET
@@ -195,7 +195,7 @@ Node* get_n (char** s)
 {
     skip_spaces(s);
     if (**s == ';')
-        return DEFUALT_NODE;
+        return EMPtY_NODE;
 
     char* old_s = *s;
 

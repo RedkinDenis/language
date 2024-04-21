@@ -156,7 +156,7 @@ void calc_simplifier (Node* tree, int* changed)
 {
     int var = 0;
     double temp = calculator(tree, &var);
-    if (var == 0 && tree->type != NUM && tree->type != DEFUALT)
+    if (var == 0 && tree->type != NUM && tree->type != EMPtY)
     {
         // print_data(tree);
         tree->data.value = temp;
@@ -273,7 +273,7 @@ Node* create_node (data_t type, void* data, Node* left, Node* right, byte_codes 
             newNode->data.function = (char*)calloc(strlen((char*)data), sizeof(char));
             strcpy(newNode->data.function, (char*)data);
             break;
-        case DEFUALT:
+        case EMPtY:
             // printf("here\n");
             break;
     }
@@ -385,7 +385,7 @@ Node* diff_pow (const Node* node, const char* part)
     {
         Node* cx = copy_subtree((Node*)node);
         Node* dx = DIFF_RIGHT;
-        Node* lna = create_node(FUNCTION, op_ln, DEFUALT_NODE, COPY_LEFT);
+        Node* lna = create_node(FUNCTION, op_ln, EMPtY_NODE, COPY_LEFT);
         Node* res = create_node(OPERAND, &op_mul, lna, create_node(OPERAND, &op_mul, cx, dx));
 
         return res;
@@ -405,7 +405,7 @@ Node* diff_pow (const Node* node, const char* part)
     }
     else 
     {
-        Node* middle = create_node(FUNCTION, op_exp, DEFUALT_NODE, create_node(OPERAND, &op_mul, COPY_RIGHT, create_node(FUNCTION, op_ln, DEFUALT_NODE, COPY_LEFT)));
+        Node* middle = create_node(FUNCTION, op_exp, EMPtY_NODE, create_node(OPERAND, &op_mul, COPY_RIGHT, create_node(FUNCTION, op_ln, EMPtY_NODE, COPY_LEFT)));
 
         return diff(middle, part);
     }
@@ -420,7 +420,7 @@ Node* diff_exp (const Node* node, const char* part)
 
 Node* diff_sin (const Node* node, const char* part)
 {
-    Node* dsin = create_node(FUNCTION, op_cos, DEFUALT_NODE, COPY_RIGHT);
+    Node* dsin = create_node(FUNCTION, op_cos, EMPtY_NODE, COPY_RIGHT);
     Node* dx = DIFF_RIGHT;
 
     Node* res = create_node(OPERAND, &op_mul, dsin, dx);
@@ -432,7 +432,7 @@ Node* diff_cos (const Node* node, const char* part)
 
     double temp = 1;
     Node* unit = create_node(NUM, &temp, NULL, NULL);
-    Node* Sin = create_node(FUNCTION, op_sin, DEFUALT_NODE, COPY_RIGHT);
+    Node* Sin = create_node(FUNCTION, op_sin, EMPtY_NODE, COPY_RIGHT);
     
     Node* dcos = create_node(OPERAND, &op_sub, unit, Sin);
     Node* dx = DIFF_RIGHT;
@@ -446,7 +446,7 @@ Node* diff_tg (const Node* node, const char* part)
 
     double one = 1;
     Node* unit = create_node(NUM, &one, NULL, NULL);
-    Node* Cos = create_node(FUNCTION, op_cos, DEFUALT_NODE, COPY_RIGHT);
+    Node* Cos = create_node(FUNCTION, op_cos, EMPtY_NODE, COPY_RIGHT);
 
     double two = 2;
     Node* Two = create_node(NUM, &two, NULL, NULL);

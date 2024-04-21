@@ -36,7 +36,7 @@
     } while (0)
 
 
-#define DEFUALT_NODE create_node(DEFUALT, NULL, NULL, NULL)
+#define EMPtY_NODE create_node(EMPtY, NULL, NULL, NULL)
 #define DIFF_LEFT  diff(node->left, part)
 #define DIFF_RIGHT diff(node->right, part)
 #define COPY_LEFT  copy_subtree(node->left)

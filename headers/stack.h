@@ -9,24 +9,24 @@
 #include "../../err_codes.h"
 #include "DSLdiff.h"
 
-typedef char* elem_t;
+// typedef void* void*;
 
-static const elem_t poison = NULL;
+static void* poison = NULL;
 
 struct Stack
 {
-    elem_t* data = NULL;
+    void** data = NULL;
     size_t capacity = 0;
     size_t size = 0;
 };
 
-err stack_pop(struct Stack* stk, elem_t* pop_el);
+err stack_pop(struct Stack* stk, void** pop_el);
 
 err stack_dump(struct Stack* stk, int LINE, const char* stk_name, const char* file_name, const char* func_name);
 
 err stack_ctor(struct Stack* stk, size_t capacity);
 
-err stack_push(struct Stack* stk, const elem_t* x);
+err stack_push(struct Stack* stk, void** x);
 
 err stack_dtor(struct Stack* stk);
 

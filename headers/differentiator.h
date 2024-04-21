@@ -4,6 +4,7 @@
 #include <cstddef>
 #include "..\..\err_codes.h"   
 #include "../headers/DSLdiff.h"
+#include "encoding.h"
 
 #define DATA_LEN 40
 
@@ -13,37 +14,38 @@ enum data_t
     VAR = 4,
     OPERAND = 2,
     FUNCTION = 3,
-    DEFUALT = 0
+    EMPtY = 0
 };
 
 enum operation
 {
-    ERR = 0, 
-    ADD = '+', 
-    SUB = '-', 
-    MUL = '*', 
-    DIV = '/', 
-    LN = 'l', 
-    EXP = 'e',
-    POW = '^',
-    SIN = 's',
-    COS = 'c',
-    TG = 't',
-    ASS = '=',
-    COM = ';'
+    opUNKNOWN = 0, 
+    opADD = '+', 
+    opSUB = '-', 
+    opMUL = '*', 
+    opDIV = '/', 
+    opLN = 'l', 
+    opEXP = 'e',
+    opPOW = '^',
+    opSIN = 's',
+    opCOS = 'c',
+    opTG = 't',
+    opASS = '=',
+    opCOM = ';'
 };
 
 union data
 {
     unsigned char operand;
-    char* var;
+    const char* var;
     char* function;
     double value;
 };
 
 struct Node
 {
-    data_t type = DEFUALT;
+    data_t type = EMPtY;
+    byte_codes code = DEFAULT;
     
     data data = {};
     
@@ -55,13 +57,13 @@ struct Node
     int num_in_tree = 0;
 };
 
-static operation op_add = ADD;        
-static operation op_mul = MUL;        
-static operation op_sub = SUB;        
-static operation op_div = DIV;        
-static operation op_pow = POW; 
-static operation op_ass = ASS;  
-static operation op_com = COM;     
+static operation op_add = opADD;        
+static operation op_mul = opMUL;        
+static operation op_sub = opSUB;        
+static operation op_div = opDIV;        
+static operation op_pow = opPOW; 
+static operation op_ass = opASS;  
+static operation op_com = opCOM;     
 static char* op_exp = (char*)"exp";   
 static char* op_ln = (char*)"ln";     
 static char* op_sin = (char*)"sin";   
@@ -76,7 +78,7 @@ Node* diff (const Node* node, const char* part = "x");
 
 Node* simplifier (Node* tree);
 
-Node* create_node (data_t type, void* data, Node* left, Node* right);
+Node* create_node (data_t type, void* data, Node* left, Node* right, byte_codes code = DEFAULT);
 
 operation long_op_det (char* str, char** s = NULL);
 

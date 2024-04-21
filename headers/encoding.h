@@ -3,6 +3,9 @@
 
 enum byte_codes
 {
+    DEFAULT = 0,
+    ASSIGN = 100,
+    NEW = 200,
     ERR = 20,
     PUSH = 1,                 // 2
     ADD = 22,                  // 1
