@@ -5,6 +5,12 @@ enum byte_codes
 {
     DEFAULT = 0,
     ASSIGN = 100,
+    IF = 101,
+    ELSE = 102,
+    WHILE = 103,
+    LESS = 104,
+    MORE = 105,
+    EQ = 106,
     NEW = 200,
     ERR = 20,
     PUSH = 1,                 // 2

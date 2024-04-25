@@ -23,22 +23,108 @@ static Node* get_a (char** s);
 
 static Node* get_c (char** s);
 
+static Node* get_construction (char** s);
+
+static void require (char** str, const char* srch);
+
+static Node* get_func (char** s);
+
 void skip_spaces (char** str)
 {
     while (**str == ' ')
         *str += 1;
 }
 
+void require (char** str, const char* srch)
+{
+    size_t len = strlen(srch);
+    for (int i = 0; i < len; i++)
+    {
+        if ((*str)[i] != srch[i])
+        {
+            SYNTAX_ERROR
+            // printf ("here\n");
+            return;
+        }
+    }
+    *str += len;
+    skip_spaces(str);
+}
+
+Node* get_func (char** s)
+{
+    Node* body = NULL;
+    Node* args = NULL;
+    Node* res = NULL;
+    skip_spaces(s);
+    if (**s != '\0')
+    {
+        int i = 0;
+        while ((*s)[i] != ' ' && (*s)[i] != '(')
+            i++;
+
+        char* name = (char*)calloc(i + 1, sizeof(char));
+        strncpy(name, *s, i);
+        *s += i;
+        skip_spaces(s);
+
+        require(s, "(");
+        require(s, ")");
+
+        REQUIRE('{');
+
+        body = get_construction(s);
+        skip_spaces(s);
+
+        REQUIRE('}');
+
+        res = create_node(OPERAND, &op_com, create_node(FUNCTION, name, body, EMPtY_NODE), get_func(s), NEW);
+
+        return res;
+    }
+    return EMPtY_NODE;
+}
+
 Node* get_g (const char* str)
 {
     char** s = (char**)&str;
-    skip_spaces(s);
-    Node* val = get_c(s);
 
-    skip_spaces(s);
-    REQUIRE(';');
+    Node* val = get_func(s);
+
+    REQUIRE('\0');
 
     return val;
+}
+
+Node* get_construction (char** s)
+{
+    skip_spaces(s);
+    #define CONSTRUCTION_GENERATE(str, op_arg, code)                        \
+    if (strncmp(str, *s, strlen(str)) == 0)                                 \
+    {                                                                       \
+        *s += strlen(str);                                                  \
+        skip_spaces(s);                                                     \
+                                                                            \
+        REQUIRE('(');                                                       \
+                                                                            \
+        Node* condition = get_a(s);                                         \
+                                                                            \
+        REQUIRE(')');                                                       \
+                                                                            \
+        skip_spaces(s);                                                     \
+        REQUIRE('{');                                                       \
+                                                                            \
+        Node* Do = get_construction(s);                                     \
+                                                                            \
+        REQUIRE('}');                                                       \
+        skip_spaces(s);                                                     \
+        Node* cnstr = create_node(FUNCTION, op_arg, condition, Do, code);   \
+        return create_node(OPERAND, &op_com, cnstr, get_construction(s));   \
+    }
+    CONSTRUCTION_GENERATE("if", op_if, IF)
+    CONSTRUCTION_GENERATE("while", op_while, WHILE)
+    #undef CONSTRUCTION_GENERATE
+    return get_c(s);
 }
 
 Node* get_c (char** s)
@@ -53,7 +139,7 @@ Node* get_c (char** s)
     if (**s == ';')
     {
         *s += 1;
-        val = create_node(OPERAND, &op_com, val, get_c(s), NEW);
+        val = create_node(OPERAND, &op_com, val, get_construction(s), NEW);
     }
     skip_spaces(s);
     return val;
@@ -63,15 +149,25 @@ Node* get_a (char** s)
 {
     Node* val = get_e(s);
     skip_spaces(s);
+    Node* expr = NULL;
 
-    if (**s == '=')
+    char op = **s;
+
+    switch (op)
     {
-        *s += 1;
-        skip_spaces(s);
-        Node* expr = get_e(s);
-        val = create_node(OPERAND, &op_ass, expr, val, ASSIGN);
+        #define OP_GEN(opT, op_arg, com)                                \
+        case opT:                                                       \
+            *s += 1;                                                    \
+            skip_spaces(s);                                             \
+            expr = get_e(s);                                            \
+            val = create_node(FUNCTION, op_arg, expr, val, com);        \
+            break;
+        OP_GEN(opASS, op_ass, ASSIGN)
+        OP_GEN(opLESS, op_less, LESS)
+        OP_GEN(opMORE, op_more, MORE)
+        OP_GEN(opEQ, op_eq, EQ)
+        #undef OP_GEN
     }
-
     skip_spaces(s);
     return val;
 }
@@ -194,7 +290,9 @@ Node* get_p (char** s)
 Node* get_n (char** s)
 {
     skip_spaces(s);
-    if (**s == ';')
+    if (**s == '\0')
+        return EMPtY_NODE;
+    if (**s == '}')
         return EMPtY_NODE;
 
     char* old_s = *s;

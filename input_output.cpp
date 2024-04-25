@@ -376,8 +376,8 @@ void draw_tree_1 (FILE* save, Node* tree, int* node_num)
         fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = lightgoldenrod1, label = %cTYPE: %s | DATA: %s | CODE: %d%c];\n", *node_num, '"', type, buffer, tree->code, '"');
     else if (tree->type != EMPtY)
         fprintf(save, "    %d [shape = Mrecord, style = filled, fillcolor = cyan, label = %cTYPE: %s | DATA: %s | CODE: %d%c];\n", *node_num, '"', type, buffer, tree->code, '"');
-    else 
-        *node_num -= 1;
+    // else 
+    //     *node_num -= 1;
 
     if (tree->left != NULL)
     {

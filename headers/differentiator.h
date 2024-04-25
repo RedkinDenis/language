@@ -31,7 +31,10 @@ enum operation
     opCOS = 'c',
     opTG = 't',
     opASS = '=',
-    opCOM = ';'
+    opCOM = ';',
+    opMORE = '>',
+    opLESS = '<',
+    opEQ = '~'
 };
 
 union data
@@ -61,14 +64,20 @@ static operation op_add = opADD;
 static operation op_mul = opMUL;        
 static operation op_sub = opSUB;        
 static operation op_div = opDIV;        
-static operation op_pow = opPOW; 
-static operation op_ass = opASS;  
-static operation op_com = opCOM;     
+static operation op_pow = opPOW;   
+static operation op_com = opCOM;  
+static char* op_more = (char*)"more";  
+static char* op_less = (char*)"less";     
 static char* op_exp = (char*)"exp";   
 static char* op_ln = (char*)"ln";     
 static char* op_sin = (char*)"sin";   
 static char* op_cos = (char*)"cos";   
-static char* op_tg = (char*)"tg";   
+static char* op_tg = (char*)"tg";     
+static char* op_if = (char*)"if";     
+static char* op_else = (char*)"else";     
+static char* op_while = (char*)"while";    
+static char* op_ass = (char*)"=";  
+static char* op_eq = (char*)"~";     
 
 err tree_kill (Node* head);
 
