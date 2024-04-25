@@ -72,19 +72,19 @@ int main ()
 
 void compiler (char* prog)
 {
-    vars vars = create_vars();
-    RAM ram = ram_ctor(RAM_SIZE);
+    // vars vars = create_vars();
+    // RAM ram = ram_ctor(RAM_SIZE);
 
     Node* programm = get_g(prog);
     draw_tree(programm);
     // print_tree(programm);
     // printf("\n");
 
-    Stack stk = {};
-    stack_ctor(&stk, 1);
+    // Stack stk = {};
+    // stack_ctor(&stk, 1);
     
-    char* res = equation_assm(programm, &stk, &vars, &ram);
-    printf ("assm:\n%s\n", res);
+    // char* res = equation_assm(programm, &stk, &vars, &ram);
+    // printf ("assm:\n%s\n", res);
     // stack_dtor(&stk);
     // delete_vars(&vars);
 }
