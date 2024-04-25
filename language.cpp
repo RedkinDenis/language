@@ -77,8 +77,6 @@ void compiler (char* prog)
 
     Node* programm = get_g(prog);
     draw_tree(programm);
-    // print_tree(programm);
-    // printf("\n");
 
     // Stack stk = {};
     // stack_ctor(&stk, 1);

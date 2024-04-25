@@ -27,6 +27,8 @@ static Node* get_construction (char** s);
 
 static void require (char** str, const char* srch);
 
+static Node* get_args (char** s);
+
 static Node* get_func (char** s);
 
 void skip_spaces (char** str)
@@ -69,6 +71,9 @@ Node* get_func (char** s)
         skip_spaces(s);
 
         require(s, "(");
+
+        Node* args = get_args(s);
+
         require(s, ")");
 
         REQUIRE('{');
@@ -78,11 +83,25 @@ Node* get_func (char** s)
 
         REQUIRE('}');
 
-        res = create_node(OPERAND, &op_com, create_node(FUNCTION, name, body, EMPtY_NODE), get_func(s), NEW);
+        res = create_node(OPERAND, &op_com, create_node(FUNCTION, name, body, args), get_func(s), NEW);
 
         return res;
     }
     return EMPtY_NODE;
+}
+
+Node* get_args (char** s)
+{
+    Node* arg = get_n(s);
+    if (arg->type != EMPtY)
+        arg->right = EMPtY_NODE;
+
+    if (**s == ',')
+    {
+        *s += 1;
+        arg->left = get_args(s);
+    }
+    return arg;
 }
 
 Node* get_g (const char* str)
@@ -336,7 +355,7 @@ Node* get_n (char** s)
             *s += 1;
         }
         if (old_s == *s)
-            SYNTAX_ERROR;
+            return EMPtY_NODE;
     }
     skip_spaces(s);
     return val;
