@@ -83,7 +83,7 @@ Node* get_func (char** s)
 
         REQUIRE('}');
 
-        res = create_node(OPERAND, &op_com, create_node(FUNCTION, name, body, args), get_func(s), NEW);
+        res = create_node(OPERAND, &op_com, create_node(FUNCTION, name, body, args, FUNC_PRIOR), get_func(s), NEW);
 
         return res;
     }
@@ -94,12 +94,16 @@ Node* get_args (char** s)
 {
     Node* arg = get_n(s);
     if (arg->type != EMPtY)
-        arg->right = EMPtY_NODE;
-
-    if (**s == ',')
     {
-        *s += 1;
-        arg->left = get_args(s);
+        if (**s == ',')
+        {
+            *s += 1;
+            return create_node(OPERAND, &op_com, arg, get_args(s));
+        }
+        else
+        {
+            return create_node(OPERAND, &op_com, arg, EMPtY_NODE);
+        }
     }
     return arg;
 }
@@ -118,27 +122,27 @@ Node* get_g (const char* str)
 Node* get_construction (char** s)
 {
     skip_spaces(s);
-    #define CONSTRUCTION_GENERATE(str, op_arg, code)                        \
-    if (strncmp(str, *s, strlen(str)) == 0)                                 \
-    {                                                                       \
-        *s += strlen(str);                                                  \
-        skip_spaces(s);                                                     \
-                                                                            \
-        REQUIRE('(');                                                       \
-                                                                            \
-        Node* condition = get_a(s);                                         \
-                                                                            \
-        REQUIRE(')');                                                       \
-                                                                            \
-        skip_spaces(s);                                                     \
-        REQUIRE('{');                                                       \
-                                                                            \
-        Node* Do = get_construction(s);                                     \
-                                                                            \
-        REQUIRE('}');                                                       \
-        skip_spaces(s);                                                     \
-        Node* cnstr = create_node(FUNCTION, op_arg, condition, Do, code);   \
-        return create_node(OPERAND, &op_com, cnstr, get_construction(s));   \
+    #define CONSTRUCTION_GENERATE(str, op_arg, code)                            \
+    if (strncmp(str, *s, strlen(str)) == 0)                                     \
+    {                                                                           \
+        *s += strlen(str);                                                      \
+        skip_spaces(s);                                                         \
+                                                                                \
+        REQUIRE('(');                                                           \
+                                                                                \
+        Node* condition = get_a(s);                                             \
+                                                                                \
+        REQUIRE(')');                                                           \
+                                                                                \
+        skip_spaces(s);                                                         \
+        REQUIRE('{');                                                           \
+                                                                                \
+        Node* Do = get_construction(s);                                         \
+                                                                                \
+        REQUIRE('}');                                                           \
+        skip_spaces(s);                                                         \
+        Node* cnstr = create_node(FUNCTION, op_arg, condition, Do, code);       \
+        return create_node(OPERAND, &op_com, cnstr, get_construction(s), NEW);  \
     }
     CONSTRUCTION_GENERATE("if", op_if, IF)
     CONSTRUCTION_GENERATE("while", op_while, WHILE)

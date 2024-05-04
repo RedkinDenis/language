@@ -42,4 +42,6 @@ char* tex_tree (Node* tree);
 
 void remove_enters (char* str);
 
+char* data_to_string (Node* tree);
+
 #endif // INPUT_OTPUT_H

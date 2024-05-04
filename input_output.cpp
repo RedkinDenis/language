@@ -10,17 +10,19 @@
 
 static void get_data (char* buf, int* ptr, Node* tree, int data_len);
 
+static char* get_data_buffer (char* buf, int* ptr, int data_len);
+
 static void goto_prace (char* buf, int* ptr);
 
 static err print_tree__ (Node* head, int* tab);
 
 static err fprint_tree__ (FILE* out, Node* head, int* tab);
 
-static int check_var (const char* data_buffer);
-
 static void draw_tree_1 (FILE* save, Node* tree, int* node_num);
 
 static void draw_tree_2 (FILE* save, Node* tree);
+
+static void fprint_data (FILE* out, Node* head);
 
 int GetFileSize(FILE* fp)
 {
@@ -46,11 +48,8 @@ err print_tree__ (Node* head, int* tab)
     printf("(");
 
     printf("%*s", *tab * 4, "");
+    printf(" #%d# #%d#", head->type, head->code);
     print_data(head);
-    if (head->type == VAR)
-    {
-        printf("var - %s %p ", head->data.var, head->data.var);
-    }
 
     if (head->left != NULL)
     {
@@ -70,6 +69,7 @@ err print_tree__ (Node* head, int* tab)
 
     return SUCCESS;
 }
+
 
 void print_data (Node* head)
 {
@@ -91,11 +91,30 @@ void print_data (Node* head)
     return;
 }
 
+void fprint_data (FILE* out, Node* head)
+{
+    if (head->type == NUM)
+        fprintf(out, "#%lf#", head->data.value);
+        
+    else if (head->type == OPERAND)
+        fprintf(out, "#%c#", head->data.operand); 
+        
+    else if (head->type == FUNCTION)
+        fprintf(out, "#%s#", head->data.function); 
+
+    else if (head->type == VAR)
+        fprintf(out, "#%s#", head->data.var); 
+
+    else if (head->type ==  EMPtY)
+        fprintf(out, "#null#");
+    
+    return;
+}
+
 err fprint_tree (FILE* out, Node* head)
 {
     CHECK_PTR(out);
     CHECK_PTR(head);
-
     int tab = 0;
     return fprint_tree__(out, head, &tab);
 }
@@ -107,8 +126,8 @@ err fprint_tree__ (FILE* out, Node* head, int* tab)
     fprintf(out, "(");
 
     fprintf(out, "%*s", *tab * 4, "");
-
-    fprintf(out, "*%s*", head->data);
+    fprintf(out, "#%d# #%d# ", head->type, head->code);
+    fprint_data(out, head);
 
     if (head->left != NULL)
     {
@@ -146,9 +165,25 @@ err fill_buffer (FILE* read, char** buf)
 void remove_enters (char* str)
 {
     size_t len = strlen(str);
+    
+
+    char* comment = strstr(str, "//");
+    while (comment != NULL)
+    {
+        // printf ("here");
+        while (*comment != '\n' && *comment != '\0')
+        {
+            *comment = ' ';
+            comment += 1;
+        }
+        comment = strstr(str, "//");
+    }
+
     for (int i = 0; i < len; i++)
         if (str[i] == '\n' || str[i] == '\r')
             str[i] = ' ';
+
+    // printf("\n%s", str);
 }
 
 err importTree (FILE* read, Node* tree)
@@ -214,6 +249,23 @@ void goto_prace (char* buf, int* ptr)
 
 void get_data(char* buf, int* ptr, Node* tree, int data_len)
 {
+    char* data_buffer = get_data_buffer(buf, ptr, data_len);
+    sscanf(data_buffer ,"%d", tree->type);
+    free(data_buffer);
+
+    data_buffer = get_data_buffer(buf, ptr, data_len);
+    sscanf(data_buffer ,"%d", tree->code);
+    free(data_buffer);
+
+    
+    // printf("data_buffer - %s\n", data_buffer);
+    
+    free(data_buffer);
+    goto_prace(buf, ptr);
+}
+
+char* get_data_buffer (char* buf, int* ptr, int data_len)
+{
     char* data_buffer = (char*)calloc(DATA_LEN + 1, sizeof(char));
     while (buf[*ptr - 1] != '#')
         *ptr += 1;
@@ -225,70 +277,7 @@ void get_data(char* buf, int* ptr, Node* tree, int data_len)
         *ptr += 1;
         i++;
     }
-
-    // printf("data_buffer - %s\n", data_buffer);
-    
-    if (check_var(data_buffer))
-    {
-        tree->data.var = strdup(data_buffer);
-        tree->type = VAR;
-
-        free(data_buffer);
-        goto_prace(buf, ptr);
-        return;
-    }
-    else 
-    {
-        int x = sscanf(data_buffer, "%lf", &(tree->data.value));
-        if (x == 1) 
-        {
-            tree->type = NUM;
-            free(data_buffer);
-            goto_prace(buf, ptr);
-            return;
-        }
-    }
-    if (strlen(data_buffer) == 1)
-    {
-        tree->data.operand = data_buffer[0];
-        tree->type = OPERAND;
-    }
-    else
-    {
-        if (strcmp(data_buffer, "null") == 0)
-        {
-            //printf("here\n");
-            tree->type = EMPtY;
-        }
-        else
-            tree->type = FUNCTION;
-
-        tree->data.function = (char*)calloc(strlen(data_buffer) + 1, sizeof(char));
-        strcpy(tree->data.function, data_buffer);    
-    }
-
-    free(data_buffer);
-    goto_prace(buf, ptr);
-}
-
-int check_var (const char* data_buffer)
-{
-    int len = (int)strlen(data_buffer);
-    // printf("len - %d\n", len);
-    if (isalpha(data_buffer[len - 1]))
-    {
-        if (len == 1)
-            return 1;
-        for (int i = len - 1; i >= 0; i--)
-        {   
-            if (('0' <= data_buffer[i]) && (data_buffer[i] <= '9'))
-            {
-                // printf("%s\n", data_buffer);
-                return 1;
-            }
-        }
-    }
-    return 0;
+    return data_buffer;
 }
 
 err draw_tree (Node* tree)

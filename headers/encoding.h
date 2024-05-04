@@ -11,6 +11,8 @@ enum byte_codes
     LESS = 104,
     MORE = 105,
     EQ = 106,
+    MAIN = 107,
+    OWNFUNC = 108,
     NEW = 200,
     ERR = 20,
     PUSH = 1,                 // 2

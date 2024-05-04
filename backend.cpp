@@ -4,8 +4,8 @@
 #include "stdlib.h"
 
 #include "headers/differentiator.h"
+#include "headers/encoding.h"
 #include "headers/input_output.h"
-#include "headers/recursive_descent.h"
 #include "headers/stack.h"
 
 #define RAM_SIZE 1024
@@ -37,8 +37,6 @@ struct RAM
     size_t free_cells = 0;
 };
 
-static void compiler (char* prog);
-
 static vars create_vars ();
 
 static void dump_vars (vars* vars);
@@ -57,34 +55,13 @@ static RAM ram_ctor (size_t size);
 
 static size_t search_free_cells (RAM* ram);
 
+static char* unknown_node (Node* node);
+
 static void ram_dtor (RAM* ram);
 
 int main ()
 {
-    FILE* prog = fopen("prog.txt", "rb");
-    char* programm = NULL;
-    fill_buffer(prog, &programm);
-    remove_enters(programm);
-    printf("%s\n", programm);
 
-    compiler(programm);
-}
-
-void compiler (char* prog)
-{
-    // vars vars = create_vars();
-    // RAM ram = ram_ctor(RAM_SIZE);
-
-    Node* programm = get_g(prog);
-    draw_tree(programm);
-
-    // Stack stk = {};
-    // stack_ctor(&stk, 1);
-    
-    // char* res = equation_assm(programm, &stk, &vars, &ram);
-    // printf ("assm:\n%s\n", res);
-    // stack_dtor(&stk);
-    // delete_vars(&vars);
 }
 
 vars create_vars ()
@@ -165,7 +142,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
     char* buf = (char*)calloc(buf_size, sizeof(char));
     stack_push(mem_stk, (void**)&buf);
 
-    if (tree->code == ASSIGN)
+    if (tree->code == ASSIGN || tree->code == MAIN)
     {
         SPRINTF(buf, buf_size, "%s\n%s\n", equation_assm(tree->left, mem_stk, vars, ram), equation_assm(tree->right, mem_stk, vars, ram));
         return buf;
@@ -173,6 +150,17 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
 
     else if (tree->type == EMPtY)
         return (char*)"";
+
+    else if (tree->code == IF)
+    {
+        SPRINTF(buf, buf_size, "%s\n%s\n", equation_assm(tree->left, mem_stk, vars, ram), equation_assm(tree->right, mem_stk, vars, ram));
+        return buf;
+    }
+    else if (tree->code == MORE)
+    {
+        SPRINTF(buf, buf_size, "%s\n%s\nJNE MARK\n", equation_assm(tree->left, mem_stk, vars, ram), equation_assm(tree->right, mem_stk, vars, ram));
+        return buf;
+    }
 
     else if (tree->code != NEW)
     {
@@ -196,13 +184,12 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
 
         else if (tree->type == VAR)
         {
-            printf ("1 ");
-            printf ("var - %p ", tree->data.var);
+            // printf ("1 ");
+            // printf ("var - %p ", tree->data.var);
             var* var = check_var(vars, tree->data.var);
-            printf ("2 ");
+            // printf ("2 ");
             if (var != NULL)
             {
-                // printf ("HERE ");
                 SPRINTF(buf, buf_size, "POP [%u]\n", var->adress);
             }
             else 
@@ -219,7 +206,14 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
         return buf;
     }
 
-    return (char*)"UNKNOWN COMM";
+    return unknown_node(tree);
+}
+
+char* unknown_node (Node* node)
+{
+    char* ret = (char*)calloc(20, sizeof(char));
+    sprintf(ret, "UNKN - %s", data_to_string(node));
+    return ret;
 }
 
 RAM ram_ctor (size_t size)
