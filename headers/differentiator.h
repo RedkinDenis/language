@@ -14,7 +14,9 @@ enum data_t
     VAR = 4,
     OPERAND = 2,
     FUNCTION = 3,
-    EMPtY = 0
+    EMPtY = 0,
+
+    LINKER = 5
 };
 
 enum operation
@@ -31,7 +33,7 @@ enum operation
     opCOS = 'c',
     opTG = 't',
     opASS = '=',
-    opCOM = ';',
+    opLINK = ';',
     opMORE = '>',
     opLESS = '<',
     opEQ = '~'
@@ -65,7 +67,7 @@ static operation op_mul = opMUL;
 static operation op_sub = opSUB;        
 static operation op_div = opDIV;        
 static operation op_pow = opPOW;   
-static operation op_com = opCOM;  
+static operation op_link = opLINK;  
 static char* op_more = (char*)"more";  
 static char* op_less = (char*)"less";     
 static char* op_exp = (char*)"exp";   

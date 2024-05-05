@@ -107,6 +107,9 @@ void fprint_data (FILE* out, Node* head)
 
     else if (head->type ==  EMPtY)
         fprintf(out, "#null#");
+
+    else if (head->type ==  LINKER)
+        fprintf(out, "#;#");
     
     return;
 }
@@ -205,8 +208,11 @@ err importTree (FILE* read, Node* tree)
         get_data(buf, &ptr, tree, DATA_LEN);
     }
 
+    // printf("here ");
+
     while (level > 0)
     {
+        // printf("here ");
         if (buf[ptr] == '(')
         {
             ptr++;
@@ -249,26 +255,50 @@ void goto_prace (char* buf, int* ptr)
 
 void get_data(char* buf, int* ptr, Node* tree, int data_len)
 {
+    // printf("get_data from %s\n", &buf[*ptr]);
     char* data_buffer = get_data_buffer(buf, ptr, data_len);
-    sscanf(data_buffer ,"%d", tree->type);
+    sscanf(data_buffer ,"%d", &tree->type);
+    free(data_buffer);
+
+    // printf("%d ", tree->type);
+
+    data_buffer = get_data_buffer(buf, ptr, data_len);
+    sscanf(data_buffer ,"%d", &tree->code);
     free(data_buffer);
 
     data_buffer = get_data_buffer(buf, ptr, data_len);
-    sscanf(data_buffer ,"%d", tree->code);
+    switch (tree->type)
+    {
+    case NUM:
+        sscanf(data_buffer, "%lf", &tree->data.value);
+        break;
+    
+    case OPERAND:
+        sscanf(data_buffer, "%c", &tree->data.operand);
+        break;
+
+    case LINKER:
+        sscanf(data_buffer, "%c", &tree->data.operand);
+        break;
+
+    default:
+        tree->data.function = strdup(data_buffer);    
+        break;
+    }
     free(data_buffer);
 
     
     // printf("data_buffer - %s\n", data_buffer);
-    
-    free(data_buffer);
+    // printf ("here\n");
     goto_prace(buf, ptr);
 }
 
 char* get_data_buffer (char* buf, int* ptr, int data_len)
 {
     char* data_buffer = (char*)calloc(DATA_LEN + 1, sizeof(char));
-    while (buf[*ptr - 1] != '#')
+    while (buf[*ptr] != '#')
         *ptr += 1;
+    *ptr += 1;
 
     int i = 0;
     while ((buf[*ptr] != '#') && i <= data_len)
@@ -277,6 +307,9 @@ char* get_data_buffer (char* buf, int* ptr, int data_len)
         *ptr += 1;
         i++;
     }
+    *ptr += 1;
+
+    // printf("data_buffer - #%s#\n", data_buffer);
     return data_buffer;
 }
 
@@ -313,6 +346,11 @@ char* data_to_string (Node* tree)
         data = (char*)calloc(2, sizeof(char));
         sprintf(data, "%c", tree->data);
     }
+    else if (tree->type == LINKER)
+    {
+        data = (char*)calloc(2, sizeof(char));
+        sprintf(data, ";", tree->data);
+    }
     else if (tree->type == FUNCTION)
     {
         data = (char*)calloc(strlen(tree->data.function) + 1, sizeof(char));
@@ -346,6 +384,9 @@ char* type_to_str (Node* tree)
             break;
         case FUNCTION:
             strcpy(type, "FUNCTION");
+            break;
+        case LINKER:
+            strcpy(type, "LINKER");
             break;
     }
     return type;

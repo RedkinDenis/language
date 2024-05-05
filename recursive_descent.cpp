@@ -83,7 +83,7 @@ Node* get_func (char** s)
 
         REQUIRE('}');
 
-        res = create_node(OPERAND, &op_com, create_node(FUNCTION, name, body, args, FUNC_PRIOR), get_func(s), NEW);
+        res = create_node(LINKER, &op_link, create_node(FUNCTION, name, body, args, FUNC_PRIOR), get_func(s), LINK);
 
         return res;
     }
@@ -98,11 +98,11 @@ Node* get_args (char** s)
         if (**s == ',')
         {
             *s += 1;
-            return create_node(OPERAND, &op_com, arg, get_args(s));
+            return create_node(LINKER, &op_link, arg, get_args(s), LINK);
         }
         else
         {
-            return create_node(OPERAND, &op_com, arg, EMPtY_NODE);
+            return create_node(LINKER, &op_link, arg, EMPtY_NODE, LINK);
         }
     }
     return arg;
@@ -142,7 +142,7 @@ Node* get_construction (char** s)
         REQUIRE('}');                                                           \
         skip_spaces(s);                                                         \
         Node* cnstr = create_node(FUNCTION, op_arg, condition, Do, code);       \
-        return create_node(OPERAND, &op_com, cnstr, get_construction(s), NEW);  \
+        return create_node(LINKER, &op_link, cnstr, get_construction(s), LINK);  \
     }
     CONSTRUCTION_GENERATE("if", op_if, IF)
     CONSTRUCTION_GENERATE("while", op_while, WHILE)
@@ -162,7 +162,7 @@ Node* get_c (char** s)
     if (**s == ';')
     {
         *s += 1;
-        val = create_node(OPERAND, &op_com, val, get_construction(s), NEW);
+        val = create_node(LINKER, &op_link, val, get_construction(s), LINK);
     }
     skip_spaces(s);
     return val;
@@ -186,8 +186,8 @@ Node* get_a (char** s)
             val = create_node(FUNCTION, op_arg, expr, val, com);        \
             break;
         OP_GEN(opASS, op_ass, ASSIGN)
-        OP_GEN(opLESS, op_less, LESS)
-        OP_GEN(opMORE, op_more, MORE)
+        OP_GEN(opMORE, op_less, LESS)
+        OP_GEN(opLESS, op_more, MORE)
         OP_GEN(opEQ, op_eq, EQ)
         #undef OP_GEN
     }
