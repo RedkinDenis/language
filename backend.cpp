@@ -98,7 +98,7 @@ void compiler (Node* prog)
 vars create_vars ()
 {
     vars vars = {};
-    vars.capacity = 5;
+    vars.capacity = 100;
     vars.qant = 0;
     vars.arr = (var*)calloc(vars.capacity, sizeof(var));
     return vars;
@@ -139,8 +139,10 @@ void delete_vars (vars* vars, RAM* ram)
 
 void dump_vars (vars* vars)
 {
+    printf("----DUMP_VARS----\n\n");
     for (int i = 0; i < vars->qant; i++)
         printf("\n%s adress: %u \n", vars->arr[i].name, vars->arr[i].adress);
+    printf("\n----DUMP_END-----\n\n");
 }
 
 var* check_var (vars* vars, const char* var, RAM* ram)
@@ -186,7 +188,11 @@ char* str_toupper (char* str)
 
 char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
 {
-    printf("code - %d\n", tree->code);
+    // if (tree->left != NULL && tree->right != NULL)
+    //     printf("code - %d left - %d right - %d\n", tree->code, tree->left->code, tree->right->code);
+    // else 
+    //     printf("code - %d\n", tree->code);
+
     int buf_size = 10000;
     char* buf = (char*)calloc(buf_size, sizeof(char));
     stack_push(mem_stk, &buf, sizeof(char*));
@@ -283,7 +289,8 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
 
         else if (tree->type == VAR)
         {
-            // printf ("var now - %s\n", tree->data.var);
+            printf ("var now - %s\n", tree->data.var);
+            dump_vars(vars);
             var* var = check_var(vars, tree->data.var, ram);
             // if (var != NULL)
             if (is_assign(tree) || is_arg(tree))
@@ -317,12 +324,12 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
 
 int is_arg (Node* node)
 {
-    printf("start chek arg\n");
+    // printf("start chek arg\n");
     Node* temp = NULL;
     while (node->code != OWNFUNC)
     {
         if (node->parent == NULL) {
-            printf("end chek arg\n");
+            // printf("end chek arg\n");
             return 0;
         }
         
@@ -330,10 +337,10 @@ int is_arg (Node* node)
         node = node->parent;
     }
     if (node->right == temp) {
-        printf("end chek arg\n");
+        // printf("end chek arg\n");
         return 1;
     }
-    printf("end chek arg\n");
+    // printf("end chek arg\n");
     return 0;
 }
 
