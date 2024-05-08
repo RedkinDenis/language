@@ -14,6 +14,8 @@ enum byte_codes
     MAIN = 107,
     OWNFUNC = 108,
     LINK = 200,
+    CALL_FUNC = 300,
+    CALL_OWN_FUNC = 400,
     ERR = 20,
     PUSH = 1,                 // 2
     ADD = 22,                  // 1

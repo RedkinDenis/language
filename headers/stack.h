@@ -20,13 +20,13 @@ struct Stack
     size_t size = 0;
 };
 
-err stack_pop(struct Stack* stk, void** pop_el);
+err stack_pop(struct Stack* stk, void* pop_el, size_t size);
 
 err stack_dump(struct Stack* stk, int LINE, const char* stk_name, const char* file_name, const char* func_name);
 
 err stack_ctor(struct Stack* stk, size_t capacity);
 
-err stack_push(struct Stack* stk, void** x);
+err stack_push(struct Stack* stk, void* x, size_t size);
 
 err stack_dtor(struct Stack* stk);
 

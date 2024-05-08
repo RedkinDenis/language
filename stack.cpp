@@ -44,7 +44,7 @@ err stack_ctor(struct Stack* stk, size_t capacity)
     return SUCCESS;
 }
 
-err stack_push(struct Stack* stk, void** x)
+err stack_push(struct Stack* stk, void* x, size_t size)
 {
     CHECK_PTR(stk);
     CHECK_PTR(x);
@@ -53,12 +53,13 @@ err stack_push(struct Stack* stk, void** x)
     if(res != SUCCESS)
         return res;
 
-    stk->data[stk->size] = *x;
+    memcpy(&stk->data[stk->size], x, size);
+    // stk->data[stk->size] = *x;
     stk->size++;
     return SUCCESS;
 }
 
-err stack_pop(struct Stack* stk, void** pop_el)
+err stack_pop(struct Stack* stk, void* pop_el, size_t size)
 {
     CHECK_PTR(stk);
 
@@ -68,7 +69,10 @@ err stack_pop(struct Stack* stk, void** pop_el)
     stk->size--;
 
     if(pop_el != NULL)
-        *pop_el = *(stk->data + stk->size);
+    {
+        // pop_el = *(stk->data + stk->size);
+        memcpy(pop_el, &stk->data[stk->size], size);
+    }
 
     *(stk->data + stk->size) = poison;
 
@@ -83,8 +87,8 @@ err stack_dtor(struct Stack* stk)
 {
     CHECK_PTR(stk);
 
-    for (int i = 0; i < stk->size; i++)
-        free(stk->data[i]);
+    // for (int i = 0; i < stk->size; i++)
+    //     free(stk->data[i]);
         
     free(stk->data);
     stk->data = NULL;

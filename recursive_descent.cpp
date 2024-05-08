@@ -19,6 +19,8 @@ static Node* get_f (char** s);
 
 static Node* get_d (char** s);
 
+static Node* get_ret (char** s);
+
 static Node* get_a (char** s);
 
 static Node* get_c (char** s);
@@ -30,6 +32,8 @@ static void require (char** str, const char* srch);
 static Node* get_args (char** s);
 
 static Node* get_func (char** s);
+
+char* try_get_func (char** s);
 
 void skip_spaces (char** str)
 {
@@ -80,6 +84,12 @@ Node* get_func (char** s)
 
         body = get_construction(s);
         skip_spaces(s);
+
+        // else 
+        // {
+        //     double nul = 0;
+        //     body->right = create_node(FUNCTION, (char*)"return", create_node(NUM, &nul, NULL, NULL, PUSH), EMPtY_NODE, RET);
+        // }
 
         REQUIRE('}');
 
@@ -142,7 +152,7 @@ Node* get_construction (char** s)
         REQUIRE('}');                                                           \
         skip_spaces(s);                                                         \
         Node* cnstr = create_node(FUNCTION, op_arg, condition, Do, code);       \
-        return create_node(LINKER, &op_link, cnstr, get_construction(s), LINK);  \
+        return create_node(LINKER, &op_link, cnstr, get_construction(s), LINK); \
     }
     CONSTRUCTION_GENERATE("if", op_if, IF)
     CONSTRUCTION_GENERATE("while", op_while, WHILE)
@@ -156,7 +166,7 @@ Node* get_c (char** s)
     if (**s == ';')
         return EMPtY_NODE;
         
-    Node* val = get_a(s);
+    Node* val = get_ret(s);
     skip_spaces(s);
 
     if (**s == ';')
@@ -166,6 +176,17 @@ Node* get_c (char** s)
     }
     skip_spaces(s);
     return val;
+}
+
+Node* get_ret (char** s)
+{
+    if (strncmp(*s, "return", 6) == 0)
+    {
+        *s += 6;
+        skip_spaces(s);
+        return create_node(FUNCTION, (char*)"return", get_e(s), EMPtY_NODE, RET);
+    }
+    return get_a(s);
 }
 
 Node* get_a (char** s)
@@ -260,6 +281,30 @@ Node* get_t (char** s)
     return val;
 }
 
+char* try_get_func (char** s)
+{
+    if (isalpha(**s))
+    {
+        int i = 0;
+        while (isalpha((*s)[i]) && (*s)[i] != ' ' && (*s)[i] != '(')
+            i++;
+
+        int sp = i;
+        while ((*s)[sp] == ' ')
+            sp++;
+        
+        if ((*s)[sp] != '(')
+            return NULL;
+
+        char* name = (char*)calloc(i +  1, sizeof(char));
+        strncpy(name, *s, i);
+        *s += sp + 1;
+        skip_spaces(s);
+        return name;
+    }
+    return NULL;
+}
+
 Node* get_f (char** s)
 {
     skip_spaces(s);
@@ -275,7 +320,7 @@ Node* get_f (char** s)
         {
             #define LONG_OP_DET(enum, string, vr)                               \
             case enum:                                                          \
-                var = create_node(FUNCTION, vr, EMPtY_NODE, get_e(s));        \
+                var = create_node(FUNCTION, vr, get_e(s), EMPtY_NODE, CALL_FUNC);        \
                 break;
             #include "headers/long_op.h"
             #undef LONG_OP_DET
@@ -286,7 +331,18 @@ Node* get_f (char** s)
         return var;
     }
     else
-        return get_p(s);
+    {
+        char* name = try_get_func(s);
+        
+        if (name == NULL)
+            return get_p(s);
+
+        // printf("here ");
+        Node* res = create_node(FUNCTION, name, get_args(s), EMPtY_NODE, CALL_OWN_FUNC);
+        REQUIRE(')');
+
+        return res;
+    }
 }
 
 Node* get_p (char** s)
