@@ -164,13 +164,13 @@ char* op_to_str (unsigned char op)
     switch (op)
     {
         case opADD:
-            return (char*)"ADD";
+            return (char*)"add";
         case opSUB:
-            return (char*)"SUB";
+            return (char*)"sub";
         case opMUL:
-            return (char*)"MUL";
+            return (char*)"mul";
         case opDIV:
-            return (char*)"DIV";
+            return (char*)"div";
     }
     return NULL;
 }
@@ -200,7 +200,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
     if (tree->code == ASSIGN || tree->code == MAIN)
     {
         ASSM_LEFT; ASSM_RIGHT;
-        SPRINTF(buf, buf_size, "%s\n%s\n", left, right);
+        SPRINTF(buf, buf_size, "%s\n%s", left, right);
         return buf;
     }
 
@@ -210,14 +210,14 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
     else if (tree->code == CALL_FUNC)
     {
         ASSM_LEFT; char* name = str_toupper(tree->data.function);
-        SPRINTF(buf, buf_size, "%s\n%s\n", left, name);
+        SPRINTF(buf, buf_size, "%s\n%s", left, name);
         return buf;
     }
 
     else if (tree->code == CALL_OWN_FUNC)
     {
         ASSM_LEFT; 
-        SPRINTF(buf, buf_size, "%s\nCALL %s\n", left, tree->data.function);
+        SPRINTF(buf, buf_size, "%s\ncall %s", left, tree->data.function);
         return buf;
     }
 
@@ -226,14 +226,14 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
         stack_push(ram->ram_stk, &ram->start, sizeof(ram->start));
         ram->start += ram->free_cells;
         ASSM_RIGHT; ASSM_LEFT;
-        SPRINTF(buf, buf_size, "%s:\n%s\n%s\n", tree->data.function, right, left);
+        SPRINTF(buf, buf_size, "%s:\n%s\n%s", tree->data.function, right, left);
         return buf;
     }
 
     else if (tree->code == RET)
     {
         ASSM_LEFT;
-        SPRINTF(buf, buf_size, "%s\nRET\n", left);
+        SPRINTF(buf, buf_size, "%s\nret", left);
 
         delete_vars(vars, ram);
         stack_pop(ram->ram_stk, &ram->start, sizeof(ram->start));
@@ -243,14 +243,14 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
     else if (tree->code == IF)
     {
         ASSM_LEFT; ASSM_RIGHT;
-        SPRINTF(buf, buf_size, "%s\n%s\nMARK:\n", left, right);
+        SPRINTF(buf, buf_size, "%s\n%s\nMARK:", left, right);
         return buf;
     }
 
     else if (tree->code == WHILE)
     {
         ASSM_LEFT; ASSM_RIGHT;
-        SPRINTF(buf, buf_size, "CICLE:\n%s\n%s\nJMP CICLE\nMARK:\n", left, right);
+        SPRINTF(buf, buf_size, "CICLE:\n%s\n%s\nJMP CICLE\nMARK:", left, right);
         return buf;
     }
 
@@ -258,12 +258,12 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
     else if (tree->code == cond)                                                                                                                        \
     {                                                                                                                                                   \
         ASSM_LEFT; ASSM_RIGHT;                                                                                                                          \
-        SPRINTF(buf, buf_size, "%s\n%s\n%s MARK\n", left, right, str);                                                                                  \
+        SPRINTF(buf, buf_size, "%s\n%s\n%s MARK", left, right, str);                                                                                  \
         return buf;                                                                                                                                     \
     }
-    CONDITIONS(LESS, "JB")
-    CONDITIONS(MORE, "JA")
-    CONDITIONS(EQ, "JE")
+    CONDITIONS(LESS, "jb")
+    CONDITIONS(MORE, "ja")
+    CONDITIONS(EQ, "je")
 #undef CONDITIONS
 
     else if (tree->code != LINK)
@@ -271,26 +271,26 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
         if (tree->type == OPERAND)
         {
             ASSM_LEFT; ASSM_RIGHT;
-            SPRINTF(buf, buf_size, "%s \n%s \n%s \n", left, right, op_to_str(tree->data.operand));
+            SPRINTF(buf, buf_size, "%s\n%s\n%s", left, right, op_to_str(tree->data.operand));
             return buf;
         }
         else if (tree->type == NUM)
         {
             if ((tree->data.value - (int)tree->data.value) == 0)
             {
-                SPRINTF(buf, buf_size, "PUSH %d", (int)tree->data.value);    
+                SPRINTF(buf, buf_size, "push %d", (int)tree->data.value);    
             }
             else 
             {
-                SPRINTF(buf, buf_size, "PUSH %lf", tree->data.value);
+                SPRINTF(buf, buf_size, "push %lf", tree->data.value);
             }
             return buf;
         }
 
         else if (tree->type == VAR)
         {
-            printf ("var now - %s\n", tree->data.var);
-            dump_vars(vars);
+            // printf ("var now - %s\n", tree->data.var);
+            // dump_vars(vars);
             var* var = check_var(vars, tree->data.var, ram);
             // if (var != NULL)
             if (is_assign(tree) || is_arg(tree))
@@ -301,13 +301,13 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram)
                 else 
                     adress = var->adress;
 
-                SPRINTF(buf, buf_size, "PUSH [%u]\n", adress);
+                SPRINTF(buf, buf_size, "pop [%u]", adress);
             }
             else 
             {
                 // printf("var - %p\n", var);
                 // dump_vars(vars);
-                SPRINTF(buf, buf_size, "POP [%u]\n", var->adress);
+                SPRINTF(buf, buf_size, "push [%u]", var->adress);
             }
             return buf;
         }
