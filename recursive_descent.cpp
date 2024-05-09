@@ -186,6 +186,18 @@ Node* get_ret (char** s)
         skip_spaces(s);
         return create_node(FUNCTION, (char*)"return", get_e(s), EMPtY_NODE, RET);
     }
+    else if (strncmp(*s, "print", 5) == 0)
+    {
+        *s += 5;
+        skip_spaces(s);
+        return create_node(FUNCTION, (char*)"print", get_e(s), EMPtY_NODE, PRINT);
+    }
+    else if (strncmp(*s, "sqrt", 4) == 0)
+    {
+        *s += 4;
+        skip_spaces(s);
+        return create_node(FUNCTION, (char*)"sqrt", get_e(s), EMPtY_NODE, SQRT);
+    }
     return get_a(s);
 }
 
@@ -337,8 +349,11 @@ Node* get_f (char** s)
         if (name == NULL)
             return get_p(s);
 
-        // printf("here ");
-        Node* res = create_node(FUNCTION, name, get_args(s), EMPtY_NODE, CALL_OWN_FUNC);
+        Node* res = NULL;
+        if (strncmp(name, "sqrt", 4) == 0)
+            res = create_node(FUNCTION, name, get_args(s), EMPtY_NODE, SQRT);
+        else
+            res = create_node(FUNCTION, name, get_args(s), EMPtY_NODE, CALL_OWN_FUNC);
         REQUIRE(')');
 
         return res;

@@ -13,6 +13,7 @@ enum byte_codes
     EQ = 106,
     MAIN = 107,
     OWNFUNC = 108,
+    PRINT = 109,
     LINK = 200,
     CALL_FUNC = 300,
     CALL_OWN_FUNC = 400,
