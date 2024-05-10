@@ -1,0 +1,17 @@
+main ()
+{
+    a = 5;
+    x = fact(a);
+    print(x);
+}
+
+fact (a)
+{
+    f = a;
+    while(a > 1)
+    {
+        a = a - 1;
+        f = f * a;
+    }
+    return f;
+}
