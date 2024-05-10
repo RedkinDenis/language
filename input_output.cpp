@@ -499,3 +499,13 @@ void dump_data (Data* data)
     for (int i = 0; i < data->quant; i++)
         printf("%s \n", data->lines[i].str);
 }
+
+void cut_end (char* str)
+{
+    size_t len = strlen(str) - 1;
+    while (str[len] == '\n')
+    {
+        str[len] = '\0';
+        len--;
+    }
+}

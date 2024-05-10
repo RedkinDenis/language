@@ -75,7 +75,7 @@ int main ()
     // printf("here");
     importTree(input, &prog);
     // printf("here");
-    draw_tree(&prog);
+    // draw_tree(&prog);
 
     // printf ("root - %d left - %d right - %d\n", prog.code, prog.left->code, prog.right->code);
     compiler(&prog);
@@ -91,8 +91,9 @@ void compiler (Node* prog)
     
     int mark_num = 1;
     char* res = equation_assm(prog, &stk, &vars, &ram, &mark_num);
+    cut_end(res);
 
-    FILE* assm = fopen("prog_assm.txt", "wb");
+    FILE* assm = fopen("processor/prog_assm.txt", "wb");
     fprintf (assm, "%s", res);
     fclose(assm);
     
@@ -243,7 +244,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram, int* mark
     else if (tree->code == CALL_OWN_FUNC)
     {
         ASSM_LEFT; 
-        SPRINTF(buf, buf_size, "\n%s\ncall %s:\n", left, tree->data.function);
+        SPRINTF(buf, buf_size, "%s\ncall %s:", left, tree->data.function);
         return buf;
     }
 
@@ -270,7 +271,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram, int* mark
     {
         ASSM_LEFT; ASSM_RIGHT;
         *mark_num += 1;
-        SPRINTF(buf, buf_size, "\n%s MARK%d:\n%s\nMARK%d:\n", left, *mark_num, right, *mark_num);
+        SPRINTF(buf, buf_size, "%s MARK%d:\n%s\nMARK%d:", left, *mark_num, right, *mark_num);
         return buf;
     }
 
@@ -278,7 +279,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram, int* mark
     {
         ASSM_LEFT; ASSM_RIGHT;
         *mark_num += 1;
-        SPRINTF(buf, buf_size, "\nCICLE%d:\n%s MARK%d:\n%s\njump CICLE%d:\nMARK%d:\n",*mark_num, left, *mark_num, right, *mark_num, *mark_num);
+        SPRINTF(buf, buf_size, "CICLE%d:\n%s MARK%d:\n%s\njump CICLE%d:\nMARK%d:",*mark_num, left, *mark_num, right, *mark_num, *mark_num);
         return buf;
     }
 

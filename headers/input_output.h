@@ -38,6 +38,8 @@ err draw_tree (Node* tree);
 
 err fill_buffer (FILE* read, char** buf);
 
+void cut_end (char* str);
+
 char* tex_tree (Node* tree);
 
 void remove_enters (char* str);

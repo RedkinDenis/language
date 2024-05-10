@@ -16,7 +16,7 @@ int main ()
     char* programm = NULL;
     fill_buffer(prog, &programm);
     remove_enters(programm);
-    printf("%s\n", programm);
+    // printf("%s\n", programm);
 
     compiler(programm);
 }
@@ -24,19 +24,11 @@ int main ()
 void compiler (char* prog)
 {
     Node* programm = get_g(prog);
-    draw_tree(programm);
+    // draw_tree(programm);
     // print_tree(programm);
 
     FILE* out = fopen("prog_tree.txt", "wb");
 
     fprint_tree(out, programm);
     fclose(out);
-
-    // Stack stk = {};
-    // stack_ctor(&stk, 1);
-    
-    // char* res = equation_assm(programm, &stk, &vars, &ram);
-    // printf ("assm:\n%s\n", res);
-    // stack_dtor(&stk);
-    // delete_vars(&vars);
 }

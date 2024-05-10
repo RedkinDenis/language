@@ -1,2 +1,25 @@
-all:
-	g++ language.cpp input_output.cpp differentiator.cpp recursive_descent.cpp -o lang
+compile:
+	g++ .\frontend.cpp .\input_output.cpp .\differentiator.cpp .\stack.cpp .\recursive_descent.cpp -o front.exe
+	g++ .\backend.cpp .\stack.cpp .\input_output.cpp .\differentiator.cpp -o back
+	g++ .\processor\assembler.cpp .\processor\input_output.cpp -o assm    
+	g++ .\processor\processor.cpp .\processor\input_output.cpp .\processor\stack.cpp -o proc 
+	.\front
+	.\back
+	.\assm
+	.\proc
+
+front:
+	g++ .\frontend.cpp .\input_output.cpp .\differentiator.cpp .\stack.cpp .\recursive_descent.cpp -o front.exe
+	.\front
+
+back:
+	g++ .\backend.cpp .\stack.cpp .\input_output.cpp .\differentiator.cpp -o back
+	.\back
+
+proc:  
+	g++ .\processor\processor.cpp .\processor\input_output.cpp .\processor\stack.cpp -o proc
+	.\proc
+
+assm:
+	g++ .\processor\assembler.cpp .\processor\input_output.cpp -o assm     
+	.\assm

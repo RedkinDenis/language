@@ -1,0 +1,50 @@
+main ()
+{
+    a = 1; 
+    b = 2;
+    c = 1;
+    qadr(a, b, c);
+}
+
+qadr(a, b, c)
+{
+    if (a ~ 0)
+    {
+        if (b ~ 0)
+        {
+            if (c ~ 0)
+            {
+                print(55);
+                return;
+            }
+            print(-55);
+            return;
+        }
+        x = (0 - c) / b;
+        print(x);
+        return;
+    }
+
+    d = b * b - 4 * a * c;
+
+    if (d > 0)
+    {
+        x = (0 - b - sqrt(d)) / (2 * a);
+        y = (sqrt(d) - b) / (2 * a);
+        print(x);
+        print(y);
+        return;
+    }
+    if (d ~ 0)
+    {
+        x = (0 - b) / (2 * a);
+        print(x);
+        return;
+    }
+    if (d < 0)
+    {
+        print(0);
+        return;
+    }
+    return;
+}
