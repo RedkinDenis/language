@@ -29,10 +29,10 @@ qadr(a, b, c)
 
     if (d > 0)
     {
-        x = (0 - b - sqrt(d)) / (2 * a);
-        y = (sqrt(d) - b) / (2 * a);
-        print(x);
-        print(y);
+        x1 = (0 - b - sqrt(d)) / (2 * a);
+        x2 = (sqrt(d) - b) / (2 * a);
+        print(x1);
+        print(x2);
         return;
     }
     if (d ~ 0)

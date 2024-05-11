@@ -10,9 +10,13 @@
 
 static void compiler (char* prog);
 
-int main ()
+int main (int argc, char* argv[])
 {
-    FILE* prog = fopen("factorial.txt", "rb");
+    char* inpName = (char*)"prog.txt";
+    if (argc != 1)
+        inpName = argv[1];
+
+    FILE* prog = fopen(inpName, "rb");
     char* programm = NULL;
     fill_buffer(prog, &programm);
     remove_enters(programm);
@@ -24,7 +28,7 @@ int main ()
 void compiler (char* prog)
 {
     Node* programm = get_g(prog);
-    // draw_tree(programm);
+    draw_tree(programm);
     // print_tree(programm);
 
     FILE* out = fopen("prog_tree.txt", "wb");

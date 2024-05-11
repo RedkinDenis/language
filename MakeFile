@@ -3,9 +3,9 @@ compile:
 	g++ .\backend.cpp .\stack.cpp .\input_output.cpp .\differentiator.cpp -o back
 	g++ .\processor\assembler.cpp .\processor\input_output.cpp -o assm    
 	g++ .\processor\processor.cpp .\processor\input_output.cpp .\processor\stack.cpp -o proc 
-	.\front
+	.\front $(filter-out $@,$(MAKECMDGOALS))
 	.\back
-	.\assm
+	.\assm 
 	.\proc
 
 front:

@@ -398,7 +398,7 @@ Node* get_n (char** s)
     if (isalpha(**s))
     {
         int i = 0;
-        while (isalpha((*s)[i]))
+        while (isalpha((*s)[i]) || isalnum((*s)[i]))
             i++;
 
         val->type = VAR;
