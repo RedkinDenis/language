@@ -64,6 +64,7 @@ err executor(struct processor* proc)
             #include "headers/CMD_GEN.h"
 
             default:
+                // printf("unknown\n");
                 return UNKNOWN_COMMAND_NAME;
                 break;
         }

@@ -213,7 +213,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram, int* mark
     else if (tree->code == MAIN)
     {
         ASSM_LEFT; ASSM_RIGHT;
-        SPRINTF(buf, buf_size, "%s\n%s\nhlt", left, right);
+        SPRINTF(buf, buf_size, "push 0\npop ax\n%s\n%s\nhlt", left, right);
         return buf;
     }
 
@@ -244,7 +244,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram, int* mark
     else if (tree->code == CALL_OWN_FUNC)
     {
         ASSM_LEFT; 
-        SPRINTF(buf, buf_size, "%s\ncall %s:", left, tree->data.function);
+        SPRINTF(buf, buf_size, "%s\npush ax\npush 10\nadd\npop ax\ncall %s:\npush ax\npush 10\nsub\npop ax", left, tree->data.function);
         return buf;
     }
 
@@ -287,7 +287,7 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram, int* mark
     else if (tree->code == cond)                                                                                                                        \
     {                                                                                                                                                   \
         ASSM_LEFT; ASSM_RIGHT;                                                                                                                          \
-        SPRINTF(buf, buf_size, "%s\n%s\n%s", left, right, str);                                                                                  \
+        SPRINTF(buf, buf_size, "%s\n%s\n%s", left, right, str);                                                                                         \
         return buf;                                                                                                                                     \
     }
     CONDITIONS(LESS, "jae")
@@ -330,13 +330,13 @@ char* equation_assm (Node* tree, Stack* mem_stk, vars* vars, RAM* ram, int* mark
                 else 
                     adress = var->adress;
 
-                SPRINTF(buf, buf_size, "pop [%u]", adress);
+                SPRINTF(buf, buf_size, "pop [ax + %u]", adress);
             }
             else 
             {
                 // printf("var - %p\n", var);
                 // dump_vars(vars);
-                SPRINTF(buf, buf_size, "push [%u]", var->adress);
+                SPRINTF(buf, buf_size, "push [ax + %u]", var->adress);
             }
             return buf;
         }

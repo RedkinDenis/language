@@ -133,7 +133,11 @@ enum err assembler(FILE* out, struct line* data, int nLines)
         else
         {
             if((strstr(data[i].str + strlen(data[i].str) + 1, "ax") != NULL) || (strstr(data[i].str + strlen(data[i].str) + 1, "bx") != NULL) || (strstr(data[i].str + strlen(data[i].str) + 1, "cx") != NULL) || (strstr(data[i].str + strlen(data[i].str) + 1, "dx") != NULL))
+            {
                 ptr += (command + reg);
+                if(strchr(data[i].str + strlen(data[i].str) + 1, '+') != NULL)
+                    ptr += 3;
+            }
             else
                 ptr += (command + number);
         }
@@ -158,6 +162,8 @@ enum err assembler(FILE* out, struct line* data, int nLines)
                 printf("line %d: %s\n", i, data[i].str);
                 return UNKNOWN_COMMAND_NAME;
         }
+
+        
     }
 
     // for(int i = 0; i < ptr; i++)

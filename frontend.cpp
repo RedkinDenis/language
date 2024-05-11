@@ -12,7 +12,7 @@ static void compiler (char* prog);
 
 int main ()
 {
-    FILE* prog = fopen("qadr.txt", "rb");
+    FILE* prog = fopen("factorial.txt", "rb");
     char* programm = NULL;
     fill_buffer(prog, &programm);
     remove_enters(programm);

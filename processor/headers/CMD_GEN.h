@@ -119,44 +119,50 @@ CMD_GEN("push", PUSH,
     {
         sscanf(data[i].str + strlen("push "), "%d", &num);
         buffer[ptr] = PUSH;
+        ptr += command;
+        memcpy(buffer + ptr * sizeof(buffer[0]), &num, sizeof(int));
+        ptr += number;
     }
     else PUSH_POP_DET ("push", RAMPUSH, RAMPUSHR, RPUSH);
-    ptr += command;
-    memcpy(buffer + ptr * sizeof(buffer[0]), &num, sizeof(int));
-    ptr += number;
 },
 {
     if((cmd & 0xE0) == 0)
-        {
-            STPUSH(cmd_stk, proc->data[proc->ip + command])
-            proc->ip += (command + number);
-        }
+    {
+        STPUSH(cmd_stk, proc->data[proc->ip + command])
+        proc->ip += (command + number);
+        // printf("4 ");
+    }
 
-        else if((cmd & 0xE0) == 0x40)
+    else if((cmd & 0xE0) == 0x40)
+    {
+        if(proc->data[proc->ip + command] > 4)
+            return UNKNOWN_REGISTER_NAME;
+
+        STPUSH(cmd_stk, proc->reg[(int)proc->data[proc->ip + command] - 1])
+        proc->ip += (command + reg);
+        // printf("5 ");
+    }
+
+    else if((cmd & 0x20) == 0x20)
+    {
+        if((cmd & 0x80) == 0x80)
         {
             if(proc->data[proc->ip + command] > 4)
                 return UNKNOWN_REGISTER_NAME;
 
-            STPUSH(cmd_stk, proc->reg[(int)proc->data[proc->ip + command] - 1])
-            proc->ip += (command + reg);
+            int move = 0;
+            memcpy(&move, &proc->data[proc->ip + command + reg], 3);
+            STPUSH(cmd_stk, proc->RAM[(int)proc->reg[(int)proc->data[proc->ip + command] - 1] + move])
+            proc->ip += (command + reg + 3);
+        // printf("6 ");
         }
-
-        else if((cmd & 0x20) == 0x20)
+        else
         {
-            if((cmd & 0x80) == 0x80)
-            {
-                if(proc->data[proc->ip + command] > 4)
-                    return UNKNOWN_REGISTER_NAME;
-
-                STPUSH(cmd_stk, proc->RAM[(int)proc->reg[(int)proc->data[proc->ip + command] - 1]])
-                proc->ip += (command + reg);
-            }
-            else
-            {
-                STPUSH(cmd_stk, proc->RAM[(int)proc->data[proc->ip + command]])
-                proc->ip += (command + number);
-            }
+            STPUSH(cmd_stk, proc->RAM[(int)proc->data[proc->ip + command]])
+            proc->ip += (command + number);
+        // printf("7 ");
         }
+    }
 },
 {
     if (cmd == PUSH)
@@ -220,28 +226,27 @@ CMD_GEN("push", PUSH,
 CMD_GEN("pop", (POP & 0x1F),
 {
     PUSH_POP_DET ("pop", RAMPOP, RAMRPOP, POP);
-    ptr += command;
-    memcpy(buffer + ptr * sizeof(buffer[0]), &num, sizeof(char));
-    ptr += number;
 },
 {
     if((cmd & 0x40) == 0x40)
         {
-
             STPOP(cmd_stk, proc->reg[(int)proc->data[proc->ip + command] - 1])
             proc->ip += (command + reg);
-        }
-        else if((cmd & 0x20) == 0x20)
-        {
-
-            STPOP(cmd_stk, proc->RAM[(int)proc->data[proc->ip + command]])
-            proc->ip += (command + number);
+            // printf("1 ");
         }
         else if((cmd & 0xA0) == 0xA0)
         {
-
-            STPOP(cmd_stk, proc->RAM[(int)proc->reg[(int)proc->data[proc->ip + command] - 1]]);
-            proc->ip += (command + reg);
+            int move = 0;
+            memcpy(&move, &proc->data[proc->ip + command + reg], 3);
+            STPOP(cmd_stk, proc->RAM[(int)proc->reg[(int)proc->data[proc->ip + command] - 1] + move]);
+            proc->ip += (command + reg + 3);
+            // printf("3 ");
+        }
+        else if((cmd & 0x20) == 0x20)
+        {
+            STPOP(cmd_stk, proc->RAM[(int)proc->data[proc->ip + command]])
+            proc->ip += (command + number);
+            // printf("2 ");
         }
 },
 {

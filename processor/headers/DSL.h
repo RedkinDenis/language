@@ -121,23 +121,33 @@ enum step
     do                                                                                          \
     {                                                                                           \
         size_t name_len = strlen(name) + 1;                                                     \
-        if(*(data[i].str + name_len) == '[' && strchr(data[i].str + name_len, ']') != NULL)     \
+        if(*(data[i].str + name_len) == '[' && strchr(data[i].str + name_len, ']') != NULL) {    \
         if(isdigit(*(data[i].str + name_len + strlen("["))))                                    \
         {                                                                                       \
             sscanf(data[i].str + name_len, "[%d]", &num);                                       \
-            buffer[ptr] = type1;                                                                \
+            buffer[ptr] = type1;                                                          \
+            ptr += command;                                                         \
+            memcpy(buffer + ptr * sizeof(buffer[0]), &num, sizeof(int));                \
+            ptr += number;                                                  \
         }                                                                                       \
         else if(*(data[i].str + name_len + strlen("[a")) == 'x')                                \
         {                                                                                       \
             buffer[ptr] = type2;                                                                \
                                                                                                 \
-            num = reg_det(data[i].str + name_len);                                              \
+            num = reg_det(data[i].str + name_len + 1);                                          \
                                                                                                 \
             ptr += command;                                                                     \
             memcpy(buffer + ptr * sizeof(buffer[0]), &num, sizeof(char));                       \
             ptr += reg;                                                                         \
-            break;                                                                              \
-        }                                                                                       \
+                                                                                                \
+            if (strchr(data[i].str + name_len + strlen("[ax"), '+') != NULL)                                               \
+            {                                                                                   \
+                sscanf(data[i].str + name_len + strlen("[ax + "), "%d]", &num);                \
+                memcpy(buffer + ptr * sizeof(buffer[0]), &num, 3);                       \
+            }                                                                               \
+            ptr += 3;                                                                   \
+                                                                                         \
+        }                                }                                                       \
         if(*(data[i].str + name_len + strlen("a")) == 'x')                                      \
         {                                                                                       \
             buffer[ptr] = type3;                                                                \
@@ -147,8 +157,9 @@ enum step
             ptr += command;                                                                     \
             memcpy(buffer + ptr * sizeof(buffer[0]), &num, sizeof(char));                       \
             ptr += reg;                                                                         \
-            break;                                                                              \
+                                                                                         \
         }                                                                                       \
+        break;\
     } while (0)                                                                
     
 

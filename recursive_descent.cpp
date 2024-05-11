@@ -102,7 +102,7 @@ Node* get_func (char** s)
 
 Node* get_args (char** s)
 {
-    Node* arg = get_n(s);
+    Node* arg = get_e(s);
     if (arg->type != EMPtY)
     {
         if (**s == ',')
