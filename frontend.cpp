@@ -20,7 +20,7 @@ int main (int argc, char* argv[])
     char* programm = NULL;
     fill_buffer(prog, &programm);
     remove_enters(programm);
-    // printf("%s\n", programm);
+    printf("%s\n", programm);
 
     compiler(programm);
 }

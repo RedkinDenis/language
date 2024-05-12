@@ -7,6 +7,10 @@ amini
 
 fact (chislo)
 Gospodi,
+    ezeli (chislo menee 1)
+    Gospodi,
+        soslati 0;
+    amini 
     ezeli (chislo spodobno 1)
     Gospodi,
         soslati 1;

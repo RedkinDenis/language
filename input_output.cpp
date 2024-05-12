@@ -199,7 +199,9 @@ void remove_enters (char* str)
     while (end != NULL)
     {
         end[0] = '}';
-        for (int i = 1; i < 8; i++)
+        if (strstr(str, "amini") == NULL)
+            end[1] = '\0';
+        for (int i = 1; i < 5; i++)
             end[i] = ' ';
         end = strstr(str, "amini");
     }

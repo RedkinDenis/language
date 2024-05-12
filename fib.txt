@@ -7,6 +7,10 @@ amini
 
 fib(x)
 Gospodi,
+    ezeli (x menee 1)
+    Gospodi,
+        soslati 0;
+    amini
     a narekayu 1;
     b narekayu 1;
     docole(x veliche 3)
