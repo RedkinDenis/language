@@ -10,7 +10,7 @@ compile:
 
 front:
 	g++ .\frontend.cpp .\input_output.cpp .\differentiator.cpp .\stack.cpp .\recursive_descent.cpp -o front.exe
-	.\front
+	.\front $(filter-out $@,$(MAKECMDGOALS))
 
 back:
 	g++ .\backend.cpp .\stack.cpp .\input_output.cpp .\differentiator.cpp -o back
