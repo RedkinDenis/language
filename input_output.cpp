@@ -186,6 +186,24 @@ void remove_enters (char* str)
         if (str[i] == '\n' || str[i] == '\r')
             str[i] = ' ';
 
+    char* start = strstr(str, "Gospodi,");
+    while (start != NULL)
+    {
+        start[0] = '{';
+        for (int i = 1; i < 8; i++)
+            start[i] = ' ';
+        start = strstr(str, "Gospodi,");
+    }
+
+    char* end = strstr(str, "amini");
+    while (end != NULL)
+    {
+        end[0] = '}';
+        for (int i = 1; i < 8; i++)
+            end[i] = ' ';
+        end = strstr(str, "amini");
+    }
+
     // printf("\n%s", str);
 }
 

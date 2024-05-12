@@ -1,20 +1,20 @@
-main ()
-{
-    a = 5;
-    x = fib(a);
-    print(x);
-}
+zapovedi ()
+Gospodi,
+    a narekayu 5;
+    x narekayu fib(a);
+    nachertati(x);
+amini
 
 fib(x)
-{
-    a = 1;
-    b = 1;
-    while(x > 3)
-    {
-        t = b;
-        b = b + a;
-        a = t;
-        x = x - 1;
-    }
-    return b;
-}
+Gospodi,
+    a narekayu 1;
+    b narekayu 1;
+    docole(x veliche 3)
+    Gospodi,
+        t narekayu b;
+        b narekayu b prisoedinenie a;
+        a narekayu t;
+        x narekayu x otchugdenie 1;
+    amini
+    soslati b;
+amini

@@ -1,50 +1,50 @@
-main ()
-{
-    a = 1; 
-    b = 2;
-    c = 1;
-    qadr(a, b, c);
-}
+zapovedi ()
+Gospodi,
+    az narekayu 1; 
+    byki narekayu 3;
+    vedi narekayu 2;
+    qadr(az, byki, vedi);
+amini
 
-qadr(a, b, c)
-{
-    if (a ~ 0)
-    {
-        if (b ~ 0)
-        {
-            if (c ~ 0)
-            {
-                print(55);
-                return;
-            }
-            print(-55);
-            return;
-        }
-        x = (0 - c) / b;
-        print(x);
-        return;
-    }
+qadr(az, byki, vedi)
+Gospodi,
+    ezeli (az spodobno 0)
+    Gospodi,
+        ezeli (byki spodobno 0)
+        Gospodi,
+            ezeli (vedi spodobno 0)
+            Gospodi,
+                nachertati(55);
+                soslati;
+            amini
+            nachertati(-55);
+            soslati;
+        amini
+        x narekayu (0 otchugdenie vedi) delitisa byki;
+        nachertati(x);
+        soslati;
+    amini
 
-    d = b * b - 4 * a * c;
+    dobro narekayu byki mnogiti byki otchugdenie 4 mnogiti az mnogiti vedi;
 
-    if (d > 0)
-    {
-        x1 = (0 - b - sqrt(d)) / (2 * a);
-        x2 = (sqrt(d) - b) / (2 * a);
-        print(x1);
-        print(x2);
-        return;
-    }
-    if (d ~ 0)
-    {
-        x = (0 - b) / (2 * a);
-        print(x);
-        return;
-    }
-    if (d < 0)
-    {
-        print(0);
-        return;
-    }
-    return;
-}
+    ezeli (dobro veliche 0)
+    Gospodi,
+        x1 narekayu (0 otchugdenie byki otchugdenie sqrt(dobro)) delitisa (2 mnogiti az);
+        x2 narekayu (sqrt(dobro) otchugdenie byki) delitisa (2 mnogiti az);
+        nachertati(x1);
+        nachertati(x2);
+        soslati;
+    amini
+    ezeli (dobro spodobno 0)
+    Gospodi,
+        x narekayu (0 otchugdenie byki) delitisa (2 mnogiti az);
+        nachertati(x);
+        soslati;
+    amini
+    ezeli (dobro menee 0)
+    Gospodi,
+        nachertati(0);
+        soslati;
+    amini
+    soslati;
+amini

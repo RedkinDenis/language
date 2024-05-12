@@ -5,7 +5,7 @@
 
 #define SYNTAX_ERROR printf("SYNTAX ERROR!!!\nCALLED FROM LINE: %d\n", __LINE__);
 
-#define FUNC_PRIOR (strcmp(name, "main") == 0) ? MAIN : OWNFUNC
+#define FUNC_PRIOR (strcmp(name, "zapovedi") == 0) ? MAIN : OWNFUNC
 
 #define REQUIRE(r)                                      \
     do                                                  \

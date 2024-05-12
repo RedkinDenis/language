@@ -1,16 +1,16 @@
-main ()
-{
-    a = 5;
-    x = fact(a);
-    print(x);
-}
+zapovedi ()
+Gospodi,
+    chislo narekayu 5;
+    x narekayu fact(chislo);
+    nachertati(x);
+amini
 
-fact (a)
-{
-    if (a ~ 1)
-    {
-        return 1;
-    }
-    ans = a * fact(a - 1);
-    return ans;
-}
+fact (chislo)
+Gospodi,
+    ezeli (chislo spodobno 1)
+    Gospodi,
+        soslati 1;
+    amini
+    resultati narekayu chislo mnogiti fact(chislo otchugdenie 1);
+    soslati resultati;
+amini
